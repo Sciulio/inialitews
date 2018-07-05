@@ -5,6 +5,11 @@ import { loadConfiguration } from './config';
 import { NextFunction } from 'connect';
 
 
+/*
+TSL https://stackoverflow.com/questions/43156023/what-is-http-host-header
+*/
+
+
 export class MultiTenantIncomingMessage extends http.IncomingMessage {
   public tenant: {
     staticPath: string;

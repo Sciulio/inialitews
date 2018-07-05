@@ -7,6 +7,9 @@ const http_1 = __importDefault(require("http"));
 const url_1 = __importDefault(require("url"));
 const path_1 = __importDefault(require("path"));
 const config_1 = require("./config");
+/*
+TSL https://stackoverflow.com/questions/43156023/what-is-http-host-header
+*/
 class MultiTenantIncomingMessage extends http_1.default.IncomingMessage {
     constructor() {
         super(...arguments);

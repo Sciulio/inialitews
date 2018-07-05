@@ -13,6 +13,7 @@ const index_2 = require("./routes/resx/index");
 const config_1 = require("./libs/config");
 const morgan_1 = __importDefault(require("morgan"));
 const rfs = require('rotating-file-stream');
+const compression_1 = __importDefault(require("compression"));
 const config = config_1.loadConfiguration();
 const app = connect_1.default();
 const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
@@ -24,6 +25,8 @@ app.use(morgan_1.default('combined', {
         path: logDirectory
     })
 }));
+// compress all responses
+app.use(compression_1.default());
 // respond to all requests
 app.use(multitenant_1.multitenantMiddleware);
 // respond to all requests

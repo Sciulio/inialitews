@@ -8,6 +8,7 @@ import { resxMiddleware } from './routes/resx/index';
 import { loadConfiguration } from './libs/config';
 import morgan from 'morgan';
 const rfs = require('rotating-file-stream');
+import compression from 'compression';
 
 
 const config = loadConfiguration();
@@ -23,6 +24,9 @@ app.use(morgan('combined', {
     path: logDirectory
   })
 }) as connect.HandleFunction);
+
+// compress all responses
+app.use(compression() as connect.HandleFunction)
 
 // respond to all requests
 app.use(multitenantMiddleware as connect.HandleFunction);

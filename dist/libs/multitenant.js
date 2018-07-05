@@ -15,8 +15,14 @@ class MultiTenantIncomingMessage extends http_1.default.IncomingMessage {
 }
 exports.MultiTenantIncomingMessage = MultiTenantIncomingMessage;
 function multitenantStrategy(req) {
-    const ra = req.connection.remoteAddress || "";
-    return config_1.loadConfiguration().tenants[ra];
+    let host = "";
+    if (!!req.headers.host) {
+        host = req.headers.host.split(':')[0];
+    }
+    else if (!!req.connection.localAddress) {
+        host = req.connection.localAddress.replace("::ffff:", "");
+    }
+    return config_1.loadConfiguration().tenants[host];
 }
 function multitenantMiddleware(req, res, next) {
     console.log("Check if vaild request!");
@@ -30,6 +36,7 @@ function multitenantMiddleware(req, res, next) {
     }
     else {
         res.statusCode = 404;
+        //TODO: set correct mimetype for request
         res.end(`Tenant not found!`);
     }
 }

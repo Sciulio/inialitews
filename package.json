@@ -1,0 +1,21 @@
+{
+  "name": "inialitews",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sciulio",
+  "license": "ISC",
+  "dependencies": {
+    "connect": "^3.6.6",
+    "morgan": "^1.9.0",
+    "rotating-file-stream": "^1.3.6"
+  },
+  "devDependencies": {
+    "@types/connect": "^3.4.32",
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^10.5.1"
+  }
+}

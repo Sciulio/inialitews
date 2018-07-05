@@ -1,0 +1,8 @@
+node_modules/
+output/
+test/
+logs/
+
+.vscode/
+
+inia-config.json

@@ -2,11 +2,13 @@
   "name": "inialitews",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": "github:Sciulio/inialitews",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Sciulio",
+  "author": "Sciulio <sciulio@msn.com>",
   "license": "ISC",
   "dependencies": {
     "connect": "^3.6.6",

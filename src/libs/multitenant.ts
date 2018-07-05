@@ -12,8 +12,15 @@ export class MultiTenantIncomingMessage extends http.IncomingMessage {
 }
 
 function multitenantStrategy(req: http.IncomingMessage) {
-  const ra = req.connection.remoteAddress || "";
-  return loadConfiguration().tenants[ra];
+  let host = "";
+  
+  if (!!req.headers.host) {
+    host = req.headers.host.split(':')[0];
+  } else if (!!req.connection.localAddress) {
+    host = req.connection.localAddress.replace("::ffff:", "");
+  }
+
+  return loadConfiguration().tenants[host];
 }
 
 export function multitenantMiddleware(req: http.IncomingMessage, res: http.ServerResponse, next: NextFunction){
@@ -30,6 +37,7 @@ export function multitenantMiddleware(req: http.IncomingMessage, res: http.Serve
     next();
   } else {
     res.statusCode = 404;
+    //TODO: set correct mimetype for request
     res.end(`Tenant not found!`);
   }
 };

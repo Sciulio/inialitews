@@ -1,7 +1,7 @@
 {
   "name": "inialitews",
   "version": "1.0.1",
-  "description": "",
+  "description": "A multitenant static-sites server!",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": "github:Sciulio/inialitews",

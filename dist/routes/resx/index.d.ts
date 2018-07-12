@@ -1,4 +1,4 @@
-/// <reference types="node" />
-import http from 'http';
-import { MultiTenantIncomingMessage } from "../../libs/multitenant";
-export declare function resxMiddleware(req: MultiTenantIncomingMessage, res: http.ServerResponse): void;
+/// <reference types="koa" />
+/// <reference types="koa-router" />
+import Koa from 'koa';
+export declare function resxMiddleware(ctx: Koa.Context, next: () => Promise<any>): Promise<void>;

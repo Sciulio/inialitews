@@ -1,41 +1,91 @@
-import http from 'http';
 import path from 'path';
 import fs from 'fs';
-import connect from 'connect';
-import { multitenantMiddleware } from './libs/multitenant';
-import { apiMiddleware } from './routes/api/index';
-import { resxMiddleware } from './routes/resx/index';
-import { loadConfiguration } from './libs/config';
-import morgan from 'morgan';
+import Koa from 'koa';
+import Router from 'koa-router';
+import compress from 'koa-compress';
+import morgan from 'koa-morgan';
 const rfs = require('rotating-file-stream');
-import compression from 'compression';
+import { loadConfiguration } from './libs/config';
+import { multitenantMiddleware } from './libs/multitenant';
+import { resxMiddleware } from './routes/resx';
 
 
 const config = loadConfiguration();
-const app = connect();
+
+const app = new Koa();
+const router = new Router();
+
+app.use(compress({
+  /*filter: function (content_type) {
+  	return /text/i.test(content_type)
+  },*/
+  threshold: 2048,
+  flush: require('zlib').Z_SYNC_FLUSH
+}));
 
 const logDirectory = path.join(process.cwd(), config.debug.logs.path);
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory); //TODO use mkdir???
 
-//TODO: set log info for tenant?
-app.use(morgan('combined', {
+morgan.token('tenant', function (req, res) {
+  return (res.getHeader("X-Tenant") || "").toString();
+});
+app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
   stream: rfs('access.log', {
     interval: '1d', // rotate daily
     path: logDirectory
   })
-}) as connect.HandleFunction);
+}));
 
-// compress all responses
-app.use(compression() as connect.HandleFunction)
+app.use(async function(ctx, next) {
+  try {
+    await next();
+  } catch (err) {
+    ctx.status = err.status || 500;
+
+    let bodyMessage = null;
+    if (ctx.status == 404) {
+      bodyMessage = err.message || 'Page Not Found';
+    } else {
+      bodyMessage = err.message || "Something exploded!!!";
+    }
+
+    switch (ctx.accepts('html', 'json')) {
+      case 'html':
+        ctx.type = 'html';
+        ctx.body = `<h2>${ctx.status}</h2><p>${bodyMessage}</p>`;
+        break;
+      case 'json':
+        ctx.type = 'json';
+        ctx.body = {
+          message: bodyMessage,
+          error: bodyMessage
+        };
+        break;
+      default:
+        ctx.type = 'text';
+        ctx.body = bodyMessage;
+    }
+    
+    // since we handled this manually we'll want to delegate to the regular app
+    // level error handling as well so that centralized still functions correctly.
+    ctx.app.emit('error', err, ctx);
+  }
+});
+
+app.on('error', function(err) {
+  if (process.env.NODE_ENV != 'test') {
+    console.log('sent error %s to the cloud', err.message);
+    console.log(err);
+  }
+});
+
+// multitenancy
+app.use(multitenantMiddleware);
 
 // respond to all requests
-app.use(multitenantMiddleware as connect.HandleFunction);
+app.use(resxMiddleware);
 
-// respond to all requests
-app.use("/api", apiMiddleware as connect.HandleFunction);
-
-// respond to all requests
-app.use(resxMiddleware as connect.HandleFunction);
-
-//create node.js http server and listen on port
-http.createServer(app).listen(3000);
+if (!module.parent) {
+  app.listen(3000);
+}
+console.log('Server running on port 3000');

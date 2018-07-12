@@ -1,34 +1,46 @@
 import fs from 'fs';
 import path from 'path';
-import http from 'http';
-import { MultiTenantIncomingMessage, multitenantPath } from "../../libs/multitenant";
-import { mimeType } from '../mime';
+import Koa from 'koa';
+import { MultiTenantContext, multitenantRelPath } from "../../libs/multitenant";
 
 
-export function resxMiddleware(req: MultiTenantIncomingMessage, res: http.ServerResponse){
-  const fullPath = multitenantPath(req);
+async function _fileExists(ctx: MultiTenantContext, relPath: string) {
+  return new Promise((res, rej) => {
+    fs.exists(relPath, function (exist) {
+      if (exist) {
+        fs.stat(relPath, (err, stats) => {
+          if (!err && stats.isFile()) {
+            res();
+          } else {
+            ctx.status = 404; //TODO: set correct html status and error???
+            rej(`File ${relPath} not found!`);
 
-  fs.exists(fullPath, function (exist) {
-    //TODO use middlewares to send error pages
-    if(!exist) {
-      // if the file is not found, return 404
-      res.statusCode = 404;
-      res.end(`File ${fullPath} not found!`);
-      return;
-    }
-
-    // read file from file system
-    fs.readFile(fullPath, function(err, data){
-      if(err){
-        res.statusCode = 500;
-        res.end(`Error getting the file: ${err}.`);
+            //ctx.throw(err, 404);
+            //ctx.throw(404);
+          }
+        });
       } else {
-        // based on the URL path, extract the file extention. e.g. .js, .doc, ...
-        const ext = path.parse(fullPath).ext;
-        // if the file is found, set Content-type and send data
-        res.setHeader('Content-type', mimeType[ext] || 'text/plain' );
-        res.end(data);
+        ctx.status = 404;
+        rej(`File ${relPath} not found!`);
+
+        //ctx.throw(404);
       }
-    });
+    })
   });
+}
+
+export async function resxMiddleware(ctx: Koa.Context, next: () => Promise<any>) {
+  let relPath = multitenantRelPath(ctx as MultiTenantContext);
+  const ext = path.parse(relPath).ext;
+
+  relPath = path.join(process.cwd(), relPath);
+
+  // not acceptable
+  //const type = ext in mimeType || ctx.accepts('html', 'xml', 'text'); // TODO other resources and separateas middleware
+  //if (type === false) ctx.throw(406);
+
+  await _fileExists(ctx as MultiTenantContext, relPath);
+
+  ctx.type = ext;
+  ctx.body = fs.createReadStream(relPath);
 }

@@ -1,12 +1,8 @@
-import http from 'http';
-import { mimeType } from "../mime";
-import { MultiTenantIncomingMessage } from "../../libs/multitenant";
+import { MultiTenantContext } from "../../libs/multitenant";
 
 
-export function apiMiddleware(req: MultiTenantIncomingMessage, res: http.ServerResponse){
-  res.end({
-      data: req.tenant.staticPath + ".bella"
-    },
-    mimeType[".json"]
-  );
+export function apiMiddleware(ctx: MultiTenantContext, next: () => Promise<any>){
+  ctx.status = 200;
+  ctx.type = ".json";
+  ctx.body = ctx.tenant.staticPath;
 }

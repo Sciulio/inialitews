@@ -8,10 +8,22 @@ import Koa from 'koa';
 TSL https://stackoverflow.com/questions/43156023/what-is-http-host-header
 */
 
+const config = loadConfiguration();
 
 export type MultiTenantContext = Koa.Context & {
   tenant: {
     staticPath: string;
+    locale: string;
+    isDefaultLocale: boolean;
+    cacheMaxAge: number;
+  };
+}
+export type MultiTenantResxContext = MultiTenantContext & {
+  resx: {
+    absPath: string;
+    relPath: string;
+    ext: string;
+    isLocalizable: boolean;
   };
 }
 
@@ -26,15 +38,24 @@ function multitenantStrategy(ctx: Koa.Context) {
     host = ctx.originalUrl.replace("::ffff:", "");
   }
 
-  return loadConfiguration().tenants[host];
+  return config.tenants[host];
 }
 
 export async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>){
   const tenant = multitenantStrategy(ctx);
 
   if (tenant) {
+    let locale = ctx.request.acceptsLanguages(tenant.locale).toString();
+
+    if (locale == "*") {
+      locale = tenant.locale[0];
+    }
+
     (ctx as MultiTenantContext).tenant = {
-      staticPath: tenant.name
+      staticPath: tenant.name,
+      isDefaultLocale: locale == tenant.locale[0],
+      cacheMaxAge: tenant.cacheMaxAge,
+      locale
     };
     ctx.res.setHeader("X-Tenant", tenant.name);
   
@@ -45,7 +66,7 @@ export async function multitenantMiddleware(ctx: Koa.Context, next: () => Promis
   }
 };
 
-export function multitenantRelPath(ctx: MultiTenantContext): string {
+function multitenantRelPath(ctx: MultiTenantContext): string {
   const _url = ctx.url || "";
 
   // parse URL
@@ -70,5 +91,12 @@ export function multitenantRelPath(ctx: MultiTenantContext): string {
   }
   filePath = path.normalize(filePath);
 
-  return path.join(loadConfiguration().target.root, ctx.tenant.staticPath, filePath, fileName);
+  //return path.join(config.target.root, ctx.tenant.staticPath, filePath, fileName);
+  return path.join(filePath, fileName);
+}
+export function multitenantPath(ctx: MultiTenantContext) {
+  const relPath = multitenantRelPath(ctx);
+
+  //return [path.join(process.cwd(), relPath), relPath];
+  return [path.join(process.cwd(), config.target.root, ctx.tenant.staticPath, relPath), relPath];
 }

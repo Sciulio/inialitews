@@ -7,7 +7,9 @@ import morgan from 'koa-morgan';
 const rfs = require('rotating-file-stream');
 import { loadConfiguration } from './libs/config';
 import { multitenantMiddleware } from './libs/multitenant';
-import { resxMiddleware } from './routes/resx';
+//import { resxMiddleware } from './routes/resx';
+import { router as routerResx } from './routes/resx';
+import { initDb } from './libs/audit';
 
 
 const config = loadConfiguration();
@@ -83,9 +85,20 @@ app.on('error', function(err) {
 app.use(multitenantMiddleware);
 
 // respond to all requests
-app.use(resxMiddleware);
+//app.use(resxMiddleware);
+app.use(routerResx.routes());
+//api.use('/users', user.routes());
 
-if (!module.parent) {
-  app.listen(3000);
-}
-console.log('Server running on port 3000');
+
+// init execution
+
+(async function() {
+  await initDb();
+
+  if (!module.parent) {
+    const server = app
+    .listen(config.server.port, () => {
+      console.log('Server running on port:', config.server.port);
+    });
+  }
+})();

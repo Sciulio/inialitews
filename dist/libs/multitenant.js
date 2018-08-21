@@ -14,6 +14,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const url_1 = __importDefault(require("url"));
 const path_1 = __importDefault(require("path"));
 const config_1 = require("./config");
+/*
+TSL https://stackoverflow.com/questions/43156023/what-is-http-host-header
+*/
+const config = config_1.loadConfiguration();
 function multitenantStrategy(ctx) {
     let host = "";
     if (ctx.host) {
@@ -25,14 +29,21 @@ function multitenantStrategy(ctx) {
     else if (!!ctx.originalUrl) {
         host = ctx.originalUrl.replace("::ffff:", "");
     }
-    return config_1.loadConfiguration().tenants[host];
+    return config.tenants[host];
 }
 function multitenantMiddleware(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const tenant = multitenantStrategy(ctx);
         if (tenant) {
+            let locale = ctx.request.acceptsLanguages(tenant.locale).toString();
+            if (locale == "*") {
+                locale = tenant.locale[0];
+            }
             ctx.tenant = {
-                staticPath: tenant.name
+                staticPath: tenant.name,
+                isDefaultLocale: locale == tenant.locale[0],
+                cacheMaxAge: tenant.cacheMaxAge,
+                locale
             };
             ctx.res.setHeader("X-Tenant", tenant.name);
             yield next();
@@ -64,7 +75,13 @@ function multitenantRelPath(ctx) {
         filePath = "/" + filePath;
     }
     filePath = path_1.default.normalize(filePath);
-    return path_1.default.join(config_1.loadConfiguration().target.root, ctx.tenant.staticPath, filePath, fileName);
+    //return path.join(config.target.root, ctx.tenant.staticPath, filePath, fileName);
+    return path_1.default.join(filePath, fileName);
 }
-exports.multitenantRelPath = multitenantRelPath;
+function multitenantPath(ctx) {
+    const relPath = multitenantRelPath(ctx);
+    //return [path.join(process.cwd(), relPath), relPath];
+    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.staticPath, relPath), relPath];
+}
+exports.multitenantPath = multitenantPath;
 //# sourceMappingURL=multitenant.js.map

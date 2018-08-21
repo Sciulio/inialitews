@@ -20,7 +20,9 @@ const koa_morgan_1 = __importDefault(require("koa-morgan"));
 const rfs = require('rotating-file-stream');
 const config_1 = require("./libs/config");
 const multitenant_1 = require("./libs/multitenant");
+//import { resxMiddleware } from './routes/resx';
 const resx_1 = require("./routes/resx");
+const audit_1 = require("./libs/audit");
 const config = config_1.loadConfiguration();
 const app = new koa_1.default();
 const router = new koa_router_1.default();
@@ -87,9 +89,19 @@ app.on('error', function (err) {
 // multitenancy
 app.use(multitenant_1.multitenantMiddleware);
 // respond to all requests
-app.use(resx_1.resxMiddleware);
-if (!module.parent) {
-    app.listen(3000);
-}
-console.log('Server running on port 3000');
+//app.use(resxMiddleware);
+app.use(resx_1.router.routes());
+//api.use('/users', user.routes());
+// init execution
+(function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield audit_1.initDb();
+        if (!module.parent) {
+            const server = app
+                .listen(config.server.port, () => {
+                console.log('Server running on port:', config.server.port);
+            });
+        }
+    });
+})();
 //# sourceMappingURL=index.js.map

@@ -4,12 +4,17 @@ export declare type tConfig = {
             path: string;
         };
     };
+    server: {
+        port: number;
+    };
     target: {
         root: string;
     };
     tenants: {
         [domain: string]: {
             name: string;
+            locale: string[];
+            cacheMaxAge: number;
         };
     };
 };

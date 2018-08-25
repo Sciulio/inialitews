@@ -1,29 +1,28 @@
 import path from 'path';
 import fs from 'fs';
+
+import { loadConfiguration } from './libs/config';
+
 import Koa from 'koa';
-import Router from 'koa-router';
+import Mount from 'koa-mount';
 import compress from 'koa-compress';
+
 import morgan from 'koa-morgan';
 const rfs = require('rotating-file-stream');
-import { loadConfiguration } from './libs/config';
+
 import { multitenantMiddleware } from './libs/multitenant';
-//import { resxMiddleware } from './routes/resx';
-import { router as routerResx } from './routes/resx';
 import { initDb } from './libs/audit';
+
+import { app as resxApp, init as resxInit } from './routes/resx';
+import { app as routerApp, init as routerInit } from './routes/api';
 
 
 const config = loadConfiguration();
 
 const app = new Koa();
-const router = new Router();
 
-app.use(compress({
-  /*filter: function (content_type) {
-  	return /text/i.test(content_type)
-  },*/
-  threshold: 2048,
-  flush: require('zlib').Z_SYNC_FLUSH
-}));
+
+// log configuration
 
 const logDirectory = path.join(process.cwd(), config.debug.logs.path);
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory); //TODO use mkdir???
@@ -31,14 +30,30 @@ fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory); //TODO use mkdir???
 morgan.token('tenant', function (req, res) {
   return (res.getHeader("X-Tenant") || "").toString();
 });
+morgan.token('requestId', function (req, res) {
+  return (res as any).requestId;
+});
+/*
 app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
   stream: rfs('access.log', {
     interval: '1d', // rotate daily
     path: logDirectory
   })
 }));
+*/
 
-app.use(async function(ctx, next) {
+
+// webserver configuration
+
+app
+.use(compress({
+  /*filter: function (content_type) {
+  	return /text/i.test(content_type)
+  },*/
+  threshold: 2048,
+  flush: require('zlib').Z_SYNC_FLUSH
+}))
+.use(async function(ctx, next) {
   try {
     await next();
   } catch (err) {
@@ -72,9 +87,8 @@ app.use(async function(ctx, next) {
     // level error handling as well so that centralized still functions correctly.
     ctx.app.emit('error', err, ctx);
   }
-});
-
-app.on('error', function(err) {
+})
+.on('error', function(err) {
   if (process.env.NODE_ENV != 'test') {
     console.log('sent error %s to the cloud', err.message);
     console.log(err);
@@ -84,16 +98,17 @@ app.on('error', function(err) {
 // multitenancy
 app.use(multitenantMiddleware);
 
-// respond to all requests
-//app.use(resxMiddleware);
-app.use(routerResx.routes());
-//api.use('/users', user.routes());
+app.use(Mount("/_api", routerApp));
+app.use(Mount("/", resxApp));
 
 
 // init execution
 
 (async function() {
   await initDb();
+
+  await routerInit();
+  await resxInit();
 
   if (!module.parent) {
     const server = app

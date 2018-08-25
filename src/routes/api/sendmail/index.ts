@@ -1,60 +1,65 @@
 import Koa from 'koa';
-import { IncomingMessage } from 'http';
+import Router from 'koa-router';
+import koaBody from 'koa-body';
+
+import Ajv from "ajv";
+
+import { tApiExport } from '../base';
+import { initDb, insert } from './storage';
+
+import { tSendEmailVM, dSendEmailSchema, tSendEmailDb } from './model';
 
 
-type tEmail = string;
-type tContent = string;
-export interface ISendEmailData {
-  gino: string;
-}
-export type tSendEmailData = ISendEmailData & {
-  from: tEmail;
-  to: tEmail;
-  subject: string;
-  body: tContent;
-  on: Date;
-};
+const apiKey = "sendmail";
+const router = new Router();
 
-export interface IRequestBodyParser { // extends ISingletonService
-  parse(req: IncomingMessage): ISendEmailData;
-}
-export module IRequestBodyParser {
-  var _instance: IRequestBodyParser;
+let ajv: Ajv.Ajv;
+let validatorTemplate: Ajv.ValidateFunction;
 
-  export function instance(ver: string = 'last'): IRequestBodyParser {
-    return _instance; //TODO:
+export default {
+  router,
+  route: "/" + apiKey,
+  init: async () => {
+    await initDb(apiKey);
+
+    ajv = new Ajv({
+      removeAdditional: true
+    });
+    validatorTemplate = ajv.compile(dSendEmailSchema);
+  },
+  dispose: async () => {}
+} as tApiExport;
+
+router
+.post("/sendmail", koaBody(), async function (ctx: Koa.Context, next: () => Promise<any>) {
+  //TODO: add _requestUId => uuid-v4
+
+  if (!validatorTemplate(ctx.request.body)) {
+    console.log("POST validator", validatorTemplate.errors);
+    //ctx.throw(400, JSON.stringify(ajv.errors));
+    
+    ctx.status = 400;
+    ctx.type = ".json"; //TODO add json mime
+    ctx.body = {
+      error: "Validation errors!",
+      data: JSON.stringify(ajv.errors)
+    };
+    
+    return;
   }
-  export function version(req: IncomingMessage): string {
-    return "last";
-  }
-}
 
-export function middleware(ctx: Koa.Context, next: () => Promise<any>) {
-  const version = IRequestBodyParser.version(ctx.req);
-  const rbp = IRequestBodyParser.instance(version);
+  const vmModel = ctx.request.body as tSendEmailVM;
+  vmModel._requestId = (ctx as any).requestId;
 
-  const data = rbp.parse(ctx.req);
+  const dbModel = await insert(vmModel) as tSendEmailDb;
+  //TODO: async send mail (try/catch => on err update doc as not sent)
 
-  //TODO: send data to sendmail service (IPC/nodejs cluster or other) with request uniqueId
-  const broadcastingMessage = {
-    //reqId: (ctx as MultiTenantContext).uniqueId,
-    //threadId: cluster.id,
-    //...,
-    data
-  };
-  //TODO: save data to log/disk/db => better to do this by sendmail service. here will be logged the request (everyone with uniqueId)
-
-  //async/await
+  console.log("POST", dbModel, vmModel);
 
   ctx.status = 200;
-  ctx.type = ".json";
+  ctx.type = ".json"; //TODO add json mime
   ctx.body = {
-    //error
-    //DEBUG: stack
-    message: "Mail sent!"
+    message: "Mail sent!",
+    data: dbModel
   };
-}
-
-export default (app: Koa) => {
-  app.use(middleware);
-};
+});

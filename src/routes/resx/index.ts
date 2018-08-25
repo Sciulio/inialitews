@@ -1,47 +1,35 @@
 import fs from 'fs';
 import path from 'path';
+
 import Koa from 'koa';
 import Router from 'koa-router';
+
 import { MultiTenantContext, MultiTenantResxContext, multitenantPath } from "../../libs/multitenant";
 import { fetchFileAudit } from '../../libs/audit';
+import { checkForEffectivePath } from './helpers';
+
+import { loadConfiguration } from '../../libs/config';
+
+import morgan from 'koa-morgan';
+const rfs = require('rotating-file-stream');
 
 
-export const router = new Router();
+const config = loadConfiguration();
 
-async function checkFile(_path: string) {
-  return new Promise((res, rej) => {
-    fs.exists(_path, function (exist) {
-      if (exist) {
-        fs.stat(_path, (err, stats) => {
-          if (err) {
-            rej();
-          } else {
-            res(stats.isFile());
-          }
-        });
-      } else {
-        res(false);
-      }
-    })
-  });
-}
-async function checkForEffectivePath(ctx: MultiTenantResxContext): Promise<string|null> {
-  let _path = ctx.resx.absPath;
+export const app = new Koa();
+const router = new Router();
 
-  if (ctx.resx.isLocalizable && !ctx.tenant.isDefaultLocale) {
-    const localizedPath = _path + "." + ctx.tenant.locale;
+export async function init() {}
 
-    if (await checkFile(localizedPath)) {
-      return localizedPath;
-    }
-  }
 
-  if (await checkFile(_path)) {
-    return _path;
-  }
-  
-  return null;
-}
+const logDirectory = path.join(process.cwd(), config.debug.logs.path);
+
+app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
+  stream: rfs('access.log', {
+    interval: '1d', // rotate daily
+    path: logDirectory
+  })
+}));
 
 // responds to all but _api/*
 router
@@ -61,8 +49,8 @@ router
   const dbItem = await fetchFileAudit(tenant.staticPath, url);
   if (!dbItem) {
     ctx.status = 404;
+    //TODO: load 404 page
     ctx.body = "ERROREE 404: " + relPath;
-    //ctx.throw("ERROREE 404!");
 
     return;
   }
@@ -127,3 +115,6 @@ router
 
   ctx.body = await fs.createReadStream(effectivePath);
 });
+app
+.use(router.routes())
+.use(router.allowedMethods());

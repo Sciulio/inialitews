@@ -7,6 +7,14 @@ export declare type tConfig = {
     server: {
         port: number;
     };
+    services: {
+        db: {
+            path: string;
+        };
+        apis: {
+            [name: string]: any;
+        };
+    };
     target: {
         root: string;
     };

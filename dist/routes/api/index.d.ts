@@ -1,2 +1,3 @@
-import { MultiTenantContext } from "../../libs/multitenant";
-export declare function apiMiddleware(ctx: MultiTenantContext, next: () => Promise<any>): void;
+import Koa from 'koa';
+export declare const app: Koa;
+export declare function init(): Promise<void>;

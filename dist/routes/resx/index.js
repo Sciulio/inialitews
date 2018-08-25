@@ -13,48 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const koa_1 = __importDefault(require("koa"));
 const koa_router_1 = __importDefault(require("koa-router"));
 const multitenant_1 = require("../../libs/multitenant");
 const audit_1 = require("../../libs/audit");
-exports.router = new koa_router_1.default();
-function checkFile(_path) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((res, rej) => {
-            fs_1.default.exists(_path, function (exist) {
-                if (exist) {
-                    fs_1.default.stat(_path, (err, stats) => {
-                        if (err) {
-                            rej();
-                        }
-                        else {
-                            res(stats.isFile());
-                        }
-                    });
-                }
-                else {
-                    res(false);
-                }
-            });
-        });
-    });
+const helpers_1 = require("./helpers");
+const config_1 = require("../../libs/config");
+const koa_morgan_1 = __importDefault(require("koa-morgan"));
+const rfs = require('rotating-file-stream');
+const config = config_1.loadConfiguration();
+exports.app = new koa_1.default();
+const router = new koa_router_1.default();
+function init() {
+    return __awaiter(this, void 0, void 0, function* () { });
 }
-function checkForEffectivePath(ctx) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let _path = ctx.resx.absPath;
-        if (ctx.resx.isLocalizable && !ctx.tenant.isDefaultLocale) {
-            const localizedPath = _path + "." + ctx.tenant.locale;
-            if (yield checkFile(localizedPath)) {
-                return localizedPath;
-            }
-        }
-        if (yield checkFile(_path)) {
-            return _path;
-        }
-        return null;
-    });
-}
+exports.init = init;
+const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
+exports.app.use(koa_morgan_1.default(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
+    stream: rfs('apis.log', {
+        interval: '1d',
+        path: logDirectory
+    })
+}));
 // responds to all but _api/*
-exports.router
+router
     .get("*", function resxMiddleware(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
         /*
@@ -69,8 +51,8 @@ exports.router
         const dbItem = yield audit_1.fetchFileAudit(tenant.staticPath, url);
         if (!dbItem) {
             ctx.status = 404;
+            //TODO: load 404 page
             ctx.body = "ERROREE 404: " + relPath;
-            //ctx.throw("ERROREE 404!");
             return;
         }
         //TODO: read this information from db => dbItem.isLocalizable
@@ -114,7 +96,7 @@ exports.router
             return;
         }
         //if ctx.is('image/*')
-        const effectivePath = yield checkForEffectivePath(ctx);
+        const effectivePath = yield helpers_1.checkForEffectivePath(ctx);
         if (!effectivePath) {
             //ctx.status = 500;
             //ctx.body = "ERROREE 500: " + relPath;
@@ -125,4 +107,7 @@ exports.router
         ctx.body = yield fs_1.default.createReadStream(effectivePath);
     });
 });
+exports.app
+    .use(router.routes())
+    .use(router.allowedMethods());
 //# sourceMappingURL=index.js.map

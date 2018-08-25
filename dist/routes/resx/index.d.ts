@@ -1,2 +1,3 @@
-import Router from 'koa-router';
-export declare const router: Router;
+import Koa from 'koa';
+export declare const app: Koa;
+export declare function init(): Promise<void>;

@@ -81,7 +81,7 @@ function multitenantRelPath(ctx) {
 function multitenantPath(ctx) {
     const relPath = multitenantRelPath(ctx);
     //return [path.join(process.cwd(), relPath), relPath];
-    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.config.name, "static", relPath), relPath];
+    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.config.name, "www", relPath), relPath];
 }
 exports.multitenantPath = multitenantPath;
 //# sourceMappingURL=multitenant.js.map

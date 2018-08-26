@@ -1,5 +1,7 @@
 import fs from 'fs';
 
+import Koa from 'koa';
+
 import { MultiTenantResxContext } from "../../libs/multitenant";
 
 
@@ -37,4 +39,10 @@ export async function checkForEffectivePath(ctx: MultiTenantResxContext): Promis
   }
   
   return null;
+}
+
+export function error404(ctx: Koa.Context) {
+  ctx.status = 404;
+  //TODO: load 404 page
+  ctx.body = "ERROREE 404!";
 }

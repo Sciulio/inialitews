@@ -40,10 +40,10 @@ function multitenantMiddleware(ctx, next) {
                 locale = tenant.locale[0];
             }
             ctx.tenant = {
-                staticPath: tenant.name,
                 isDefaultLocale: locale == tenant.locale[0],
                 cacheMaxAge: tenant.cacheMaxAge,
-                locale
+                locale,
+                config: tenant
             };
             ctx.res.setHeader("X-Tenant", tenant.name);
             yield next();
@@ -81,7 +81,7 @@ function multitenantRelPath(ctx) {
 function multitenantPath(ctx) {
     const relPath = multitenantRelPath(ctx);
     //return [path.join(process.cwd(), relPath), relPath];
-    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.staticPath, relPath), relPath];
+    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.config.name, "static", relPath), relPath];
 }
 exports.multitenantPath = multitenantPath;
 //# sourceMappingURL=multitenant.js.map

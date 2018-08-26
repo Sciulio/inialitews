@@ -44,7 +44,7 @@ exports.app.use(function (ctx, next) {
 });
 const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
 exports.app.use(koa_morgan_1.default(':tenant :requestId :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
-    stream: rfs('access.log', {
+    stream: rfs('apis.log', {
         interval: '1d',
         path: logDirectory
     })

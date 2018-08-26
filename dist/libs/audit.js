@@ -24,7 +24,7 @@ function initDb() {
             .forEachAsync((tenantKey) => __awaiter(this, void 0, void 0, function* () {
             const tenant = config.tenants[tenantKey];
             const db = new nedb_1.default({
-                filename: path_1.default.join(config.target.root, tenant.name + ".db")
+                filename: path_1.default.join(config.target.root, tenant.name, tenant.name + ".db")
             });
             yield new Promise((res, rej) => {
                 db.loadDatabase((err) => {

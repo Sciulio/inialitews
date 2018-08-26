@@ -6,7 +6,7 @@ import Router from 'koa-router';
 
 import { MultiTenantContext, MultiTenantResxContext, multitenantPath } from "../../libs/multitenant";
 import { fetchFileAudit } from '../../libs/audit';
-import { checkForEffectivePath } from './helpers';
+import { checkForEffectivePath, error404 } from './helpers';
 
 import { loadConfiguration } from '../../libs/config';
 
@@ -45,14 +45,11 @@ router
   const url = relPath.replace(/\\/g, "/");
 
   const tenant = (ctx as MultiTenantContext).tenant;
+  const tenantConfig = tenant.config;
 
-  const dbItem = await fetchFileAudit(tenant.staticPath, url);
+  const dbItem = await fetchFileAudit(tenantConfig.name, url);
   if (!dbItem) {
-    ctx.status = 404;
-    //TODO: load 404 page
-    ctx.body = "ERROREE 404: " + relPath;
-
-    return;
+    return error404(ctx);
   }
 
   //TODO: read this information from db => dbItem.isLocalizable
@@ -105,12 +102,7 @@ router
 
   const effectivePath = await checkForEffectivePath(ctx as MultiTenantResxContext);
   if (!effectivePath) {
-    //ctx.status = 500;
-    //ctx.body = "ERROREE 500: " + relPath;
-    ctx.status = 404; //TODO: set correct html status and error???
-    ctx.body = "ERROREE 404: " + relPath;
-
-    return;
+    return error404(ctx);
   }
 
   ctx.body = await fs.createReadStream(effectivePath);

@@ -1,3 +1,10 @@
+export declare type tApiConfig = {};
+export declare type tTenantConfig = {
+    name: string;
+    locale: string[];
+    cacheMaxAge: number;
+    apis: tApiConfig[];
+};
 export declare type tConfig = {
     debug: {
         logs: {
@@ -12,18 +19,14 @@ export declare type tConfig = {
             path: string;
         };
         apis: {
-            [name: string]: any;
+            [name: string]: tApiConfig;
         };
     };
     target: {
         root: string;
     };
     tenants: {
-        [domain: string]: {
-            name: string;
-            locale: string[];
-            cacheMaxAge: number;
-        };
+        [domain: string]: tTenantConfig;
     };
 };
 export declare function loadConfiguration(): tConfig;

@@ -30,7 +30,7 @@ function init() {
 exports.init = init;
 const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
 exports.app.use(koa_morgan_1.default(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
-    stream: rfs('apis.log', {
+    stream: rfs('access.log', {
         interval: '1d',
         path: logDirectory
     })
@@ -48,12 +48,10 @@ router
         const ext = path_1.default.parse(relPath).ext;
         const url = relPath.replace(/\\/g, "/");
         const tenant = ctx.tenant;
-        const dbItem = yield audit_1.fetchFileAudit(tenant.staticPath, url);
+        const tenantConfig = tenant.config;
+        const dbItem = yield audit_1.fetchFileAudit(tenantConfig.name, url);
         if (!dbItem) {
-            ctx.status = 404;
-            //TODO: load 404 page
-            ctx.body = "ERROREE 404: " + relPath;
-            return;
+            return helpers_1.error404(ctx);
         }
         //TODO: read this information from db => dbItem.isLocalizable
         ctx.resx = {
@@ -98,11 +96,7 @@ router
         //if ctx.is('image/*')
         const effectivePath = yield helpers_1.checkForEffectivePath(ctx);
         if (!effectivePath) {
-            //ctx.status = 500;
-            //ctx.body = "ERROREE 500: " + relPath;
-            ctx.status = 404; //TODO: set correct html status and error???
-            ctx.body = "ERROREE 404: " + relPath;
-            return;
+            return helpers_1.error404(ctx);
         }
         ctx.body = yield fs_1.default.createReadStream(effectivePath);
     });

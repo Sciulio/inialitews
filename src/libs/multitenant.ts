@@ -1,6 +1,6 @@
 import url from 'url';
 import path from 'path';
-import { loadConfiguration } from './config';
+import { loadConfiguration, tTenantConfig } from './config';
 import Koa from 'koa';
 
 
@@ -12,10 +12,11 @@ const config = loadConfiguration();
 
 export type MultiTenantContext = Koa.Context & {
   tenant: {
-    staticPath: string;
     locale: string;
     isDefaultLocale: boolean;
     cacheMaxAge: number;
+
+    config: tTenantConfig;
   };
 }
 export type MultiTenantResxContext = MultiTenantContext & {
@@ -52,10 +53,10 @@ export async function multitenantMiddleware(ctx: Koa.Context, next: () => Promis
     }
 
     (ctx as MultiTenantContext).tenant = {
-      staticPath: tenant.name,
       isDefaultLocale: locale == tenant.locale[0],
       cacheMaxAge: tenant.cacheMaxAge,
-      locale
+      locale,
+      config: tenant
     };
     ctx.res.setHeader("X-Tenant", tenant.name);
   
@@ -98,5 +99,5 @@ export function multitenantPath(ctx: MultiTenantContext) {
   const relPath = multitenantRelPath(ctx);
 
   //return [path.join(process.cwd(), relPath), relPath];
-  return [path.join(process.cwd(), config.target.root, ctx.tenant.staticPath, relPath), relPath];
+  return [path.join(process.cwd(), config.target.root, ctx.tenant.config.name, "static", relPath), relPath];
 }

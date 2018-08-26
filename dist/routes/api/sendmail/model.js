@@ -6,7 +6,7 @@ exports.dSendEmailSchema = {
         email: { type: "string", format: "email" },
         name: { type: "string", minLength: 4, maxLength: 64 },
         subject: { type: "string", minLength: 4, maxLength: 64 },
-        message: { type: "string", minLength: 22, maxLength: 1024 },
+        message: { type: "string", minLength: 2, maxLength: 1024 },
     },
     required: ["email", "name", "subject", "message"],
     additionalProperties: false

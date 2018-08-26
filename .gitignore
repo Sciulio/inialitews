@@ -1,7 +1,8 @@
 node_modules/
-output/
+
 test/
 logs/
+data/
 
 .vscode/
 

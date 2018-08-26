@@ -1,6 +1,6 @@
 {
   "name": "inialitews",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "description": "A multitenant static-sites server!",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

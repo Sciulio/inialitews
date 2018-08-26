@@ -55,7 +55,7 @@ export async function initDb() {
   .forEachAsync(async tenantKey => {
     const tenant = config.tenants[tenantKey];
     const db = new Datastore({
-      filename: path.join(config.target.root, tenant.name, tenant.name + ".db")
+      filename: path.join(config.target.root, tenant.name, "audit.db")
     });
     
     await new Promise((res, rej) => {

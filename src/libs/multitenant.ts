@@ -99,5 +99,5 @@ export function multitenantPath(ctx: MultiTenantContext) {
   const relPath = multitenantRelPath(ctx);
 
   //return [path.join(process.cwd(), relPath), relPath];
-  return [path.join(process.cwd(), config.target.root, ctx.tenant.config.name, "static", relPath), relPath];
+  return [path.join(process.cwd(), config.target.root, ctx.tenant.config.name, "www", relPath), relPath];
 }

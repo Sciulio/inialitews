@@ -1,12 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -31,31 +23,33 @@ function multitenantStrategy(ctx) {
     }
     return config.tenants[host];
 }
-function multitenantMiddleware(ctx, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const tenant = multitenantStrategy(ctx);
-        if (tenant) {
-            let locale = ctx.request.acceptsLanguages(tenant.locale).toString();
-            if (locale == "*") {
-                locale = tenant.locale[0];
-            }
-            ctx.tenant = {
-                isDefaultLocale: locale == tenant.locale[0],
-                cacheMaxAge: tenant.cacheMaxAge,
-                locale,
-                config: tenant
-            };
-            ctx.res.setHeader("X-Tenant", tenant.name);
-            yield next();
-        }
-        else {
-            ctx.status = 507;
-            throw new Error("Tenant not found!");
-        }
-    });
-}
-exports.multitenantMiddleware = multitenantMiddleware;
-;
+exports.multitenantStrategy = multitenantStrategy;
+/*
+export async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>){
+  const tenant = multitenantStrategy(ctx);
+
+  if (tenant) {
+    let locale = ctx.request.acceptsLanguages(tenant.locale).toString();
+
+    if (locale == "*") {
+      locale = tenant.locale[0];
+    }
+
+    (ctx as MultiTenantContext).tenant = {
+      isDefaultLocale: locale == tenant.locale[0],
+      cacheMaxAge: tenant.cacheMaxAge,
+      locale,
+      config: tenant
+    };
+    ctx.res.setHeader("X-Tenant", tenant.name);
+  
+    await next();
+  } else {
+    ctx.status = 507;
+    throw new Error("Tenant not found!");
+  }
+};
+*/
 function multitenantRelPath(ctx) {
     const _url = ctx.url || "";
     // parse URL

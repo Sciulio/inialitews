@@ -9,7 +9,7 @@ let db: Datastore;
 
 export async function initDb(apiKey: string) {
   db = new Datastore({
-    filename: path.join(process.cwd(), config.services.db.path, apiKey)
+    filename: path.join(process.cwd(), config.services.db.path, apiKey + ".nedb")
   });
     
   await new Promise((res, rej) => {

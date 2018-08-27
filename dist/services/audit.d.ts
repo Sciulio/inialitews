@@ -34,5 +34,6 @@ export declare type tBuildAudit = docBuildAudit & {};
 export declare type tFileAudit = docFileAudit & {
     buildInfo: tBuildAudit;
 };
-export declare function initDb(): Promise<void>;
+declare const _default: import("../../../../Sviluppo/IniaLiteWs/src/libs/types").tConfigExporter;
+export default _default;
 export declare function fetchFileAudit(tenantName: string, url: string): Promise<docFileAudit>;

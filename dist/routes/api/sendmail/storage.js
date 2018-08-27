@@ -19,7 +19,7 @@ let db;
 function initDb(apiKey) {
     return __awaiter(this, void 0, void 0, function* () {
         db = new nedb_1.default({
-            filename: path_1.default.join(process.cwd(), config.services.db.path, apiKey)
+            filename: path_1.default.join(process.cwd(), config.services.db.path, apiKey + ".nedb")
         });
         yield new Promise((res, rej) => {
             db.loadDatabase((err) => {

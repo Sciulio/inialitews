@@ -16,20 +16,24 @@ const path_1 = __importDefault(require("path"));
 const koa_1 = __importDefault(require("koa"));
 const koa_router_1 = __importDefault(require("koa-router"));
 const multitenant_1 = require("../../libs/multitenant");
-const audit_1 = require("../../libs/audit");
+const audit_1 = require("../../services/audit");
 const helpers_1 = require("./helpers");
 const config_1 = require("../../libs/config");
 const koa_morgan_1 = __importDefault(require("koa-morgan"));
 const rfs = require('rotating-file-stream');
+const app = new koa_1.default();
+exports.default = {
+    order: 1000,
+    app,
+    route: "/",
+    init: function () {
+        return __awaiter(this, void 0, void 0, function* () { });
+    }
+};
 const config = config_1.loadConfiguration();
-exports.app = new koa_1.default();
 const router = new koa_router_1.default();
-function init() {
-    return __awaiter(this, void 0, void 0, function* () { });
-}
-exports.init = init;
 const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
-exports.app.use(koa_morgan_1.default(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
+app.use(koa_morgan_1.default(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
     stream: rfs('access.log', {
         interval: '1d',
         path: logDirectory
@@ -101,7 +105,7 @@ router
         ctx.body = yield fs_1.default.createReadStream(effectivePath);
     });
 });
-exports.app
+app
     .use(router.routes())
     .use(router.allowedMethods());
 //# sourceMappingURL=index.js.map

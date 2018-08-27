@@ -14,37 +14,39 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 require("async-extensions");
 const nedb_1 = __importDefault(require("nedb"));
-const config_1 = require("./config");
+const config_1 = require("../libs/config");
 const config = config_1.loadConfiguration();
 //TODO: set a lib:package for this AAAAAAAA
 const dbs = {};
-function initDb() {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield Object.keys(config.tenants)
-            .forEachAsync((tenantKey) => __awaiter(this, void 0, void 0, function* () {
-            const tenant = config.tenants[tenantKey];
-            const db = new nedb_1.default({
-                filename: path_1.default.join(config.target.root, tenant.name, "audit.db")
-            });
-            yield new Promise((res, rej) => {
-                db.loadDatabase((err) => {
-                    if (err) {
-                        rej(err);
-                    }
-                    else {
-                        console.log(" - initted db for tenant:", tenant.name);
-                        dbs[tenant.name] = {
-                            db,
-                            on: Date.now()
-                        };
-                        res();
-                    }
+exports.default = {
+    order: 100,
+    init: function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Object.keys(config.tenants)
+                .forEachAsync((tenantKey) => __awaiter(this, void 0, void 0, function* () {
+                const tenant = config.tenants[tenantKey];
+                const db = new nedb_1.default({
+                    filename: path_1.default.join(config.target.root, tenant.name, "audit.nedb")
                 });
-            });
-        }));
-    });
-}
-exports.initDb = initDb;
+                yield new Promise((res, rej) => {
+                    db.loadDatabase((err) => {
+                        if (err) {
+                            rej(err);
+                        }
+                        else {
+                            console.log(" - initted db for tenant:", tenant.name);
+                            dbs[tenant.name] = {
+                                db,
+                                on: Date.now()
+                            };
+                            res();
+                        }
+                    });
+                });
+            }));
+        });
+    }
+};
 function fetchFileAudit(tenantName, url) {
     return __awaiter(this, void 0, void 0, function* () {
         const db = dbs[tenantName].db;

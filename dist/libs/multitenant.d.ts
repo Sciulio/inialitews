@@ -17,5 +17,5 @@ export declare type MultiTenantResxContext = MultiTenantContext & {
         isLocalizable: boolean;
     };
 };
-export declare function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>): Promise<void>;
+export declare function multitenantStrategy(ctx: Koa.Context): tTenantConfig;
 export declare function multitenantPath(ctx: MultiTenantContext): string[];

@@ -28,7 +28,7 @@ export type MultiTenantResxContext = MultiTenantContext & {
   };
 }
 
-function multitenantStrategy(ctx: Koa.Context) {
+export function multitenantStrategy(ctx: Koa.Context) {
   let host = "";
   
   if (ctx.host) {
@@ -42,6 +42,7 @@ function multitenantStrategy(ctx: Koa.Context) {
   return config.tenants[host];
 }
 
+/*
 export async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>){
   const tenant = multitenantStrategy(ctx);
 
@@ -66,6 +67,7 @@ export async function multitenantMiddleware(ctx: Koa.Context, next: () => Promis
     throw new Error("Tenant not found!");
   }
 };
+*/
 
 function multitenantRelPath(ctx: MultiTenantContext): string {
   const _url = ctx.url || "";

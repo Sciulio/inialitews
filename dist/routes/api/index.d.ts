@@ -1,3 +1,3 @@
-import Koa from 'koa';
-export declare const app: Koa;
-export declare function init(): Promise<void>;
+import { tAppRouteExporter } from '../../libs/types';
+declare const _default: tAppRouteExporter;
+export default _default;

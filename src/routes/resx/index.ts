@@ -5,23 +5,28 @@ import Koa from 'koa';
 import Router from 'koa-router';
 
 import { MultiTenantContext, MultiTenantResxContext, multitenantPath } from "../../libs/multitenant";
-import { fetchFileAudit } from '../../libs/audit';
+import { fetchFileAudit } from '../../services/audit';
 import { checkForEffectivePath, error404 } from './helpers';
 
 import { loadConfiguration } from '../../libs/config';
 
 import morgan from 'koa-morgan';
+import { tAppRouteExporter } from '../../libs/types';
 const rfs = require('rotating-file-stream');
 
 
+const app = new Koa();
+
+export default {
+  order: 1000,
+  app,
+  route: "/",
+  init: async function() { }
+} as tAppRouteExporter;
+
+
 const config = loadConfiguration();
-
-export const app = new Koa();
 const router = new Router();
-
-export async function init() {}
-
-
 const logDirectory = path.join(process.cwd(), config.debug.logs.path);
 
 app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'

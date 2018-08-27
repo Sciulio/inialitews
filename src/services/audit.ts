@@ -1,7 +1,8 @@
 import path from 'path';
 import 'async-extensions';
 import Datastore from 'nedb';
-import { loadConfiguration } from './config';
+import { loadConfiguration } from '../libs/config';
+import { tServiceExporter } from '../libs/types';
 
 
 const config = loadConfiguration();
@@ -50,32 +51,35 @@ const dbs: {[key: string]: {
   on: number
 }} = {};
 
-export async function initDb() {
-  await Object.keys(config.tenants)
-  .forEachAsync(async tenantKey => {
-    const tenant = config.tenants[tenantKey];
-    const db = new Datastore({
-      filename: path.join(config.target.root, tenant.name, "audit.db")
-    });
-    
-    await new Promise((res, rej) => {
-      db.loadDatabase((err) => {
-        if (err) {
-          rej(err);
-        } else {
-          console.log(" - initted db for tenant:", tenant.name);
+export default {
+  order: 100,
+  init: async function() {
+    await Object.keys(config.tenants)
+    .forEachAsync(async tenantKey => {
+      const tenant = config.tenants[tenantKey];
+      const db = new Datastore({
+        filename: path.join(config.target.root, tenant.name, "audit.nedb")
+      });
+      
+      await new Promise((res, rej) => {
+        db.loadDatabase((err) => {
+          if (err) {
+            rej(err);
+          } else {
+            console.log(" - initted db for tenant:", tenant.name);
 
-          dbs[tenant.name] = {
-            db,
-            on: Date.now()
-          };
+            dbs[tenant.name] = {
+              db,
+              on: Date.now()
+            };
 
-          res();
-        }
+            res();
+          }
+        });
       });
     });
-  });
-}
+  }
+} as tServiceExporter;
 
 export async function fetchFileAudit(tenantName: string, url: string) {
   const db = dbs[tenantName].db;

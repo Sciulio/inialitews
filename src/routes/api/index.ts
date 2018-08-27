@@ -10,28 +10,35 @@ import { tApiExport } from './base';
 import { loadConfiguration } from '../../libs/config';
 
 import morgan from 'koa-morgan';
+import { tAppRouteExporter } from '../../libs/types';
 const rfs = require('rotating-file-stream');
 
 
+const app = new Koa();
+
+export default {
+  order: 1000,
+  app,
+  route: "/_api",
+  init: async function() {
+    await load<tApiExport>(
+      path.join(__dirname, "./*/index.js"), {
+      exportDefault: true,
+      logInfo: (...args: any[]) => console.log("\x1b[35m", "INFO", ...args, "\x1b[0m"),
+      logError: (...args: any[]) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
+    })
+    .forEachAsync(async apiExport => {
+      app
+      .use(apiExport.router.routes())
+      .use(apiExport.router.allowedMethods());
+  
+      await apiExport.init();
+    });
+  }
+} as tAppRouteExporter;
+
+
 const config = loadConfiguration();
-
-export const app = new Koa();
-
-export async function init() {
-  await load<tApiExport>(
-    path.join(__dirname, "./*/index.js"), {
-    exportDefault: true,
-    logInfo: (...args: any[]) => console.log("\x1b[35m", "INFO", ...args, "\x1b[0m"),
-    logError: (...args: any[]) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
-  })
-  .forEachAsync(async apiExport => {
-    app
-    .use(apiExport.router.routes())
-    .use(apiExport.router.allowedMethods());
-
-    await apiExport.init();
-  });
-}
 
 app.use(async function(ctx, next) {
   (ctx.res as any).requestId = (ctx as any).requestId = shortid();

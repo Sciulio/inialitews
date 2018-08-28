@@ -11,16 +11,12 @@ exports.dSendEmailSchema = {
     required: ["email", "name", "subject", "message"],
     additionalProperties: false
 };
-/*export function bindData(rawData: any, schema: { properties: {[key: string]: any} }) {
-  //let valid = ajv.validate(person, this.request.body);
-  const resData: {[key: string]: any} = {};
-
-  for (var key in schema.properties) {
-    resData[key] = rawData[key];
-    
-    delete rawData[key];
-  }
-
-  return resData;
-}*/ 
+function factory(ctx) {
+    const vmModel = ctx.request.body;
+    vmModel._requestId = ctx.api.requestId;
+    vmModel._on = new Date().getTime();
+    console.log("vmModel", vmModel);
+    return vmModel;
+}
+exports.factory = factory;
 //# sourceMappingURL=model.js.map

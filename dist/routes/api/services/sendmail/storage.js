@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const nedb_1 = __importDefault(require("nedb"));
-const config_1 = require("../../../libs/config");
+const config_1 = require("../../../../libs/config");
 const config = config_1.loadConfiguration();
 let db;
 function initDb(apiKey) {
@@ -35,10 +35,10 @@ function initDb(apiKey) {
     });
 }
 exports.initDb = initDb;
-function insert(data) {
+function insert(item) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((res, rej) => {
-            db.insert(data, (err, doc) => {
+            db.insert(item, (err, doc) => {
                 if (err) {
                     rej(err);
                 }

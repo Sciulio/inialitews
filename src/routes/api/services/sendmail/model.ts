@@ -1,7 +1,10 @@
+import { MultiTenantApiContext } from "../../../../libs/multitenant";
+
 export type tEmail = string;
 
 export type tSendEmailVM = {
   _requestId: string;
+  _on: number;
 
   email: tEmail;
   name: string;
@@ -24,15 +27,11 @@ export const dSendEmailSchema = {
   additionalProperties: false
 };
 
-/*export function bindData(rawData: any, schema: { properties: {[key: string]: any} }) {
-  //let valid = ajv.validate(person, this.request.body);
-  const resData: {[key: string]: any} = {};
+export function factory(ctx: MultiTenantApiContext) {
+  const vmModel = ctx.request.body as tSendEmailVM;
+  
+  vmModel._requestId = ctx.api.requestId;
+  vmModel._on = new Date().getTime();
 
-  for (var key in schema.properties) {
-    resData[key] = rawData[key];
-    
-    delete rawData[key];
-  }
-
-  return resData;
-}*/
+  return vmModel;
+}

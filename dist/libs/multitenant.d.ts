@@ -17,5 +17,10 @@ export declare type MultiTenantResxContext = MultiTenantContext & {
         isLocalizable: boolean;
     };
 };
+export declare type MultiTenantApiContext = MultiTenantContext & {
+    api: {
+        requestId: string;
+    };
+};
 export declare function multitenantStrategy(ctx: Koa.Context): tTenantConfig;
 export declare function multitenantPath(ctx: MultiTenantContext): string[];

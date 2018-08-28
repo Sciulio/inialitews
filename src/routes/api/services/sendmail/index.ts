@@ -4,10 +4,11 @@ import koaBody from 'koa-body';
 
 import Ajv from "ajv";
 
-import { tApiExport } from '../base';
+import { tApiExport } from '../../base';
 import { initDb, insert } from './storage';
 
-import { tSendEmailVM, dSendEmailSchema, tSendEmailDb } from './model';
+import { dSendEmailSchema, tSendEmailDb, factory } from './model';
+import { MultiTenantApiContext } from '../../../../libs/multitenant';
 
 
 const apiKey = "sendmail";
@@ -32,8 +33,6 @@ export default {
 
 router
 .post("/sendmail", koaBody(), async function (ctx: Koa.Context, next: () => Promise<any>) {
-  //TODO: add _requestUId => uuid-v4
-
   if (!validatorTemplate(ctx.request.body)) {
     console.log("POST validator", validatorTemplate.errors);
     //ctx.throw(400, JSON.stringify(ajv.errors));
@@ -48,13 +47,9 @@ router
     return;
   }
 
-  const vmModel = ctx.request.body as tSendEmailVM;
-  vmModel._requestId = (ctx as any).requestId;
-
-  const dbModel = await insert(vmModel) as tSendEmailDb;
+  const vmModel = factory(ctx as MultiTenantApiContext);
+  const dbModel = await insert<tSendEmailDb>(vmModel);
   //TODO: async send mail (try/catch => on err update doc as not sent)
-
-  console.log("POST", dbModel, vmModel);
 
   ctx.status = 200;
   ctx.type = ".json"; //TODO add json mime

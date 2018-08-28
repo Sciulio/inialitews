@@ -18,8 +18,7 @@ const koa_router_1 = __importDefault(require("koa-router"));
 const multitenant_1 = require("../../libs/multitenant");
 const audit_1 = require("../../services/audit");
 const helpers_1 = require("./helpers");
-const config_1 = require("../../libs/config");
-const koa_morgan_1 = __importDefault(require("koa-morgan"));
+const types_1 = require("../../libs/types");
 const rfs = require('rotating-file-stream');
 const app = new koa_1.default();
 exports.default = {
@@ -27,27 +26,28 @@ exports.default = {
     app,
     route: "/",
     init: function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(` -  - INIT: App[${"/"}]`);
+            console.log(" -  - LOAD: App Configurations");
+            yield types_1.loadExporters("./config/*.js", __dirname)
+                .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
+                yield configExport.init(app);
+            }));
+            console.log(" -  - LOAD: App Routes");
+            app
+                .use(router.routes())
+                .use(router.allowedMethods());
+        });
+    },
+    dispose: function () {
         return __awaiter(this, void 0, void 0, function* () { });
     }
 };
-const config = config_1.loadConfiguration();
 const router = new koa_router_1.default();
-const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
-app.use(koa_morgan_1.default(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
-    stream: rfs('access.log', {
-        interval: '1d',
-        path: logDirectory
-    })
-}));
 // responds to all but _api/*
 router
     .get("*", function resxMiddleware(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        /*
-        Cache-Control: max-age=3600
-        Content-Type
-        Content-Language
-        */
         const [absPath, relPath] = multitenant_1.multitenantPath(ctx);
         const ext = path_1.default.parse(relPath).ext;
         const url = relPath.replace(/\\/g, "/");
@@ -75,23 +75,13 @@ router
         ctx.response.set("Cache-Control", dbItem.content.visibility + ", max-age=" + tenant.cacheMaxAge);
         ctx.response.set("Last-Modified", dbItem.content.lastModified);
         ctx.response.set("ETag", dbItem.stats.hash);
-        /*ctx.etag = dbItem.hash;
-        ctx.response.headers("ETag", dbItem.hash);
-        ctx.response.etag = dbItem.hash;*/
         /*
         If-Match
         If-Unmodified-Since = "If-Unmodified-Since" ":" HTTP-date
-      
         "If-None-Match" ":" ( "*" | 1#entity-tag )
         "If-Modified-Since" ":" HTTP-date (ex. Sat, 29 Oct 1994 19:43:31 GMT)
-      
         Last-Modified
-        
-        if (ctx.request.get("If-None-Match") == dbItem.stats.hash) {
-          debugger;
-          ctx.status = 304;
-          return;
-        }*/
+        */
         // cache negotiation between If-None-Match / ETag, and If-Modified-Since and Last-Modified
         if (ctx.fresh) {
             ctx.status = 304;
@@ -105,7 +95,4 @@ router
         ctx.body = yield fs_1.default.createReadStream(effectivePath);
     });
 });
-app
-    .use(router.routes())
-    .use(router.allowedMethods());
 //# sourceMappingURL=index.js.map

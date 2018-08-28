@@ -1,51 +1,39 @@
-import path from 'path';
-
 import "async-extensions";
-import { load } from 'dynamolo';
 
 import Koa from 'koa';
 import Mount from 'koa-mount';
 
 import { loadConfiguration } from './libs/config';
 
-import { tConfigExporter, tAppRouteExporter, tServiceExporter } from './libs/types';
+import { tConfigExporter, tAppRouteExporter, tServiceExporter, loadExporters } from './libs/types';
 
 
 const config = loadConfiguration();
-
-const dynamoloCommonConfig = {
-  exportDefault: true,
-  logInfo: (...args: any[]) => console.log("\x1b[35m", "INFO", ...args, "\x1b[0m"),
-  logError: (...args: any[]) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
-};
-
-function loadExporters<T>(_path: string) {
-  return load<T>(path.join(__dirname, _path), dynamoloCommonConfig)
-  .sort((a, b) => a.order > b.order ? 1 : -1)
-};
 
 (async function() {
   const app = new Koa();
 
   console.log(" - LOAD: App Configurations");
-  await loadExporters<tConfigExporter>("./config/*.js")
+  await loadExporters<tConfigExporter>("./config/*.js", __dirname)
   .mapAsync(async configExport => {
     await configExport.init(app);
   });
 
   console.log(" - LOAD: Services");
-  await loadExporters<tServiceExporter>("./services/*.js")
+  await loadExporters<tServiceExporter>("./services/*.js", __dirname)
   .mapAsync(async serviceExport => {
     await serviceExport.init(app);
   });
 
   console.log(" - MOUNT: AppedRoutes");
-  await loadExporters<tAppRouteExporter>("./routes/*/index.js")
+  await loadExporters<tAppRouteExporter>("./routes/*/index.js", __dirname)
   .mapAsync(async appExport => {
     app.use(Mount(appExport.route, appExport.app));
     
     await appExport.init(app);
   });
+
+  //TODO: on app terminate execute dynamiclyloadedmodules dispose()
 
   if (!module.parent) {
     const server = app

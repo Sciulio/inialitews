@@ -11,7 +11,7 @@ import { checkForEffectivePath, error404 } from './helpers';
 import { loadConfiguration } from '../../libs/config';
 
 import morgan from 'koa-morgan';
-import { tAppRouteExporter } from '../../libs/types';
+import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/types';
 const rfs = require('rotating-file-stream');
 
 
@@ -21,30 +21,29 @@ export default {
   order: 1000,
   app,
   route: "/",
-  init: async function() { }
+  init: async function() {
+    console.log(` -  - INIT: App[${"/"}]`);
+    
+    console.log(" -  - LOAD: App Configurations");
+    await loadExporters<tConfigExporter>("./config/*.js", __dirname)
+    .mapAsync(async configExport => {
+      await configExport.init(app);
+    });
+    
+    console.log(" -  - LOAD: App Routes");
+    app
+    .use(router.routes())
+    .use(router.allowedMethods());
+  },
+  dispose: async function() {}
 } as tAppRouteExporter;
 
 
-const config = loadConfiguration();
 const router = new Router();
-const logDirectory = path.join(process.cwd(), config.debug.logs.path);
-
-app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
-  stream: rfs('access.log', {
-    interval: '1d', // rotate daily
-    path: logDirectory
-  })
-}));
 
 // responds to all but _api/*
 router
 .get("*", async function resxMiddleware(ctx: Koa.Context, next: () => Promise<any>) {
-  /*
-  Cache-Control: max-age=3600
-  Content-Type
-  Content-Language
-  */
-
   const [absPath, relPath] = multitenantPath(ctx as MultiTenantContext);
   const ext = path.parse(relPath).ext;
   const url = relPath.replace(/\\/g, "/");
@@ -78,24 +77,14 @@ router
   ctx.response.set("Cache-Control", dbItem.content.visibility + ", max-age=" + tenant.cacheMaxAge);
   ctx.response.set("Last-Modified", dbItem.content.lastModified);
   ctx.response.set("ETag", dbItem.stats.hash);
-  /*ctx.etag = dbItem.hash;
-  ctx.response.headers("ETag", dbItem.hash);
-  ctx.response.etag = dbItem.hash;*/
 
   /*
   If-Match
   If-Unmodified-Since = "If-Unmodified-Since" ":" HTTP-date
-
   "If-None-Match" ":" ( "*" | 1#entity-tag )
   "If-Modified-Since" ":" HTTP-date (ex. Sat, 29 Oct 1994 19:43:31 GMT)
-
   Last-Modified
-  
-  if (ctx.request.get("If-None-Match") == dbItem.stats.hash) {
-    debugger;
-    ctx.status = 304;
-    return;
-  }*/
+  */
 
   // cache negotiation between If-None-Match / ETag, and If-Modified-Since and Last-Modified
   if (ctx.fresh) {
@@ -112,6 +101,3 @@ router
 
   ctx.body = await fs.createReadStream(effectivePath);
 });
-app
-.use(router.routes())
-.use(router.allowedMethods());

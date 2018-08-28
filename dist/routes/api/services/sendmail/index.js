@@ -35,7 +35,6 @@ exports.default = {
 router
     .post("/sendmail", koa_body_1.default(), function (ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        //TODO: add _requestUId => uuid-v4
         if (!validatorTemplate(ctx.request.body)) {
             console.log("POST validator", validatorTemplate.errors);
             //ctx.throw(400, JSON.stringify(ajv.errors));
@@ -47,8 +46,7 @@ router
             };
             return;
         }
-        const vmModel = ctx.request.body;
-        vmModel._requestId = ctx.requestId;
+        const vmModel = model_1.factory(ctx);
         const dbModel = yield storage_1.insert(vmModel);
         //TODO: async send mail (try/catch => on err update doc as not sent)
         console.log("POST", dbModel, vmModel);

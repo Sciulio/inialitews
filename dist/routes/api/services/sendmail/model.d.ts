@@ -1,6 +1,8 @@
+import { MultiTenantApiContext } from "../../../../libs/multitenant";
 export declare type tEmail = string;
 export declare type tSendEmailVM = {
     _requestId: string;
+    _on: number;
     email: tEmail;
     name: string;
     subject: string;
@@ -35,3 +37,4 @@ export declare const dSendEmailSchema: {
     required: string[];
     additionalProperties: boolean;
 };
+export declare function factory(ctx: MultiTenantApiContext): tSendEmailVM;

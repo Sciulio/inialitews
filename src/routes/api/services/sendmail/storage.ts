@@ -1,6 +1,6 @@
 import path from 'path';
 import Datastore from 'nedb';
-import { loadConfiguration } from '../../../libs/config';
+import { loadConfiguration } from '../../../../libs/config';
 import { tSendEmailVM } from './model';
 
 
@@ -24,13 +24,13 @@ export async function initDb(apiKey: string) {
   });
 }
 
-export async function insert(data: tSendEmailVM) {
-  return new Promise((res, rej) => {
-    db.insert(data, (err, doc) => {
+export async function insert<T extends tSendEmailVM>(item: tSendEmailVM) {
+  return new Promise<T>((res, rej) => {
+    db.insert(item, (err, doc) => {
       if (err) {
         rej(err);
       }
-      res(doc);
+      res(doc as T);
     })
   });
 }

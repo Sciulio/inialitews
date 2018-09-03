@@ -26,10 +26,10 @@ function multitenantMiddleware(ctx, next) {
                 locale = tenant.locale[0];
             }
             ctx.tenant = {
+                name: tenant.name,
                 isDefaultLocale: locale == tenant.locale[0],
                 cacheMaxAge: tenant.cacheMaxAge,
-                locale,
-                config: tenant
+                locale
             };
             ctx.res.setHeader("X-Tenant", tenant.name);
             yield next();

@@ -1,4 +1,7 @@
-export declare type tApiConfig = {};
+export declare type tApiConfig = {
+    name: string;
+    options: any;
+};
 export declare type tTenantConfig = {
     name: string;
     locale: string[];

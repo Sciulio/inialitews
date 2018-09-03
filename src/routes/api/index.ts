@@ -1,9 +1,9 @@
 import Koa from 'koa';
-
+import { IRouterContext } from 'koa-router';
 
 import { tApiExport } from './base';
 import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/types';
-import { MultiTenantApiContext } from '../../libs/multitenant';
+import { MultiTenantApiContext, getApiConfig } from '../../libs/multitenant';
 
 
 const app = new Koa();
@@ -15,15 +15,25 @@ export default {
   init: async function(parentApp: Koa) {
     console.log(` -  - INIT: App[${"/_api"}]`);
 
-    console.log(" -  - LOAD: AppConfigurations");
-    await loadExporters<tConfigExporter>("./config/*.js", __dirname)
+    await loadExporters<tConfigExporter>("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
     .mapAsync(async configExport => {
       await configExport.init(app);
     });
 
-    console.log(" -  - LOAD: Routes");
-    await loadExporters<tApiExport>("./services/*/index.js", __dirname)
+    await loadExporters<tApiExport>("./services/*/index.js", __dirname, " -  - LOAD: Routes")
     .forEachAsync(async routeExport => {
+      //TODO: preroute
+      routeExport.router.use(async function(ctx, next) {
+        const tenantName = (ctx as MultiTenantApiContext).tenant.name;
+        const api = (ctx as MultiTenantApiContext).api;
+        const apiName = routeExport.name;
+
+        api.name = apiName;
+        api.config = getApiConfig(tenantName, apiName);
+
+        await next();
+      });
+
       app
       .use(routeExport.router.routes())
       .use(routeExport.router.allowedMethods());
@@ -35,4 +45,3 @@ export default {
 } as tAppRouteExporter;
 
 //TODO: dispose() => dispose api routes
-

@@ -28,15 +28,14 @@ exports.default = {
     init: function () {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(` -  - INIT: App[${"/"}]`);
-            console.log(" -  - LOAD: App Configurations");
-            yield types_1.loadExporters("./config/*.js", __dirname)
-                .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
-                yield configExport.init(app);
-            }));
             console.log(" -  - LOAD: App Routes");
             app
                 .use(router.routes())
                 .use(router.allowedMethods());
+            yield types_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: App Configurations")
+                .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
+                yield configExport.init(app);
+            }));
         });
     },
     dispose: function () {
@@ -52,8 +51,7 @@ router
         const ext = path_1.default.parse(relPath).ext;
         const url = relPath.replace(/\\/g, "/");
         const tenant = ctx.tenant;
-        const tenantConfig = tenant.config;
-        const dbItem = yield audit_1.fetchFileAudit(tenantConfig.name, url);
+        const dbItem = yield audit_1.fetchFileAudit(tenant.name, url);
         if (!dbItem) {
             return helpers_1.error404(ctx);
         }

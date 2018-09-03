@@ -1,7 +1,10 @@
 import path from "path";
 
 
-export type tApiConfig = {};
+export type tApiConfig =  {
+  name: string;
+  options: any;
+}
 export type tTenantConfig = {
   name: string;
   locale: string[];

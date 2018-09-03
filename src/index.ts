@@ -13,20 +13,17 @@ const config = loadConfiguration();
 (async function() {
   const app = new Koa();
 
-  console.log(" - LOAD: App Configurations");
-  await loadExporters<tConfigExporter>("./config/*.js", __dirname)
+  await loadExporters<tConfigExporter>("./config/*.js", __dirname, " - LOAD: App Configurations")
   .mapAsync(async configExport => {
     await configExport.init(app);
   });
 
-  console.log(" - LOAD: Services");
-  await loadExporters<tServiceExporter>("./services/*.js", __dirname)
+  await loadExporters<tServiceExporter>("./services/*.js", __dirname, " - LOAD: Services")
   .mapAsync(async serviceExport => {
     await serviceExport.init(app);
   });
 
-  console.log(" - MOUNT: AppedRoutes");
-  await loadExporters<tAppRouteExporter>("./routes/*/index.js", __dirname)
+  await loadExporters<tAppRouteExporter>("./routes/*/index.js", __dirname, " - MOUNT: AppedRoutes")
   .mapAsync(async appExport => {
     app.use(Mount(appExport.route, appExport.app));
     
@@ -40,5 +37,32 @@ const config = loadConfiguration();
     .listen(config.server.port, () => {
       console.log('Server running on port:', config.server.port);
     });
+
+    server.on("error", (err) => {
+      console.error("KOA ERROR HANDLER", err);
+    });
+    process.on('uncaughtException', (err) => {
+      console.error("ODEJS EH", err);
+    });
+
+    process.on("beforeExit", onExit);
+    process.on("SIGINT", onExit);
+    process.on("SIGTERM", onExit);
+
+    let isClosing = false;
+    function onExit() {
+      if (isClosing) {
+        return;
+      }
+      isClosing = true;
+
+      server.close(function() {
+        //TODO: dispose loaded entities
+
+        process.exit(0);
+      });
+    };
+  } else {
+    process.on("disconnect", () => {});
   }
 })();

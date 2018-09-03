@@ -79,7 +79,9 @@ export default {
       });
     });
   },
-  dispose: async function() {}
+  dispose: async function() {
+    
+  }
 } as tServiceExporter;
 
 export async function fetchFileAudit(tenantName: string, url: string) {

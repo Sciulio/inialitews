@@ -9,4 +9,4 @@ export declare type tAppRouteExporter = tConfigExporter & {
     app: Koa;
     route: string;
 };
-export declare function loadExporters<T>(_path: string, root: string): any[];
+export declare function loadExporters<T>(_path: string, root: string, infoMessage: string): T[];

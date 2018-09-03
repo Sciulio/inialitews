@@ -15,7 +15,6 @@ function factory(ctx) {
     const vmModel = ctx.request.body;
     vmModel._requestId = ctx.api.requestId;
     vmModel._on = new Date().getTime();
-    console.log("vmModel", vmModel);
     return vmModel;
 }
 exports.factory = factory;

@@ -49,7 +49,15 @@ function multitenantRelPath(ctx) {
 function multitenantPath(ctx) {
     const relPath = multitenantRelPath(ctx);
     //return [path.join(process.cwd(), relPath), relPath];
-    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.config.name, "www", relPath), relPath];
+    return [path_1.default.join(process.cwd(), config.target.root, ctx.tenant.name, "www", relPath), relPath];
 }
 exports.multitenantPath = multitenantPath;
+function getApiConfig(tenantName, apiName) {
+    const tenants = config.tenants;
+    const tenant = Object.keys(tenants)
+        .map(host => tenants[host])
+        .filter(tenant => tenant.name == tenantName)[0];
+    return tenant.apis.filter(api => api.name == apiName)[0].options;
+}
+exports.getApiConfig = getApiConfig;
 //# sourceMappingURL=multitenant.js.map

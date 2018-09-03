@@ -24,16 +24,15 @@ export default {
   init: async function() {
     console.log(` -  - INIT: App[${"/"}]`);
     
-    console.log(" -  - LOAD: App Configurations");
-    await loadExporters<tConfigExporter>("./config/*.js", __dirname)
-    .mapAsync(async configExport => {
-      await configExport.init(app);
-    });
-    
     console.log(" -  - LOAD: App Routes");
     app
     .use(router.routes())
     .use(router.allowedMethods());
+    
+    await loadExporters<tConfigExporter>("./config/*.js", __dirname, " -  - LOAD: App Configurations")
+    .mapAsync(async configExport => {
+      await configExport.init(app);
+    });
   },
   dispose: async function() {}
 } as tAppRouteExporter;
@@ -49,9 +48,8 @@ router
   const url = relPath.replace(/\\/g, "/");
 
   const tenant = (ctx as MultiTenantContext).tenant;
-  const tenantConfig = tenant.config;
 
-  const dbItem = await fetchFileAudit(tenantConfig.name, url);
+  const dbItem = await fetchFileAudit(tenant.name, url);
   if (!dbItem) {
     return error404(ctx);
   }

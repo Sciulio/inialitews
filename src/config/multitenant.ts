@@ -22,10 +22,10 @@ async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>)
     }
 
     (ctx as MultiTenantContext).tenant = {
+      name: tenant.name,
       isDefaultLocale: locale == tenant.locale[0],
       cacheMaxAge: tenant.cacheMaxAge,
-      locale,
-      config: tenant
+      locale
     };
     ctx.res.setHeader("X-Tenant", tenant.name);
   

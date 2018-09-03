@@ -20,18 +20,15 @@ const config = config_1.loadConfiguration();
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
         const app = new koa_1.default();
-        console.log(" - LOAD: App Configurations");
-        yield types_1.loadExporters("./config/*.js", __dirname)
+        yield types_1.loadExporters("./config/*.js", __dirname, " - LOAD: App Configurations")
             .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
             yield configExport.init(app);
         }));
-        console.log(" - LOAD: Services");
-        yield types_1.loadExporters("./services/*.js", __dirname)
+        yield types_1.loadExporters("./services/*.js", __dirname, " - LOAD: Services")
             .mapAsync((serviceExport) => __awaiter(this, void 0, void 0, function* () {
             yield serviceExport.init(app);
         }));
-        console.log(" - MOUNT: AppedRoutes");
-        yield types_1.loadExporters("./routes/*/index.js", __dirname)
+        yield types_1.loadExporters("./routes/*/index.js", __dirname, " - MOUNT: AppedRoutes")
             .mapAsync((appExport) => __awaiter(this, void 0, void 0, function* () {
             app.use(koa_mount_1.default(appExport.route, appExport.app));
             yield appExport.init(app);
@@ -42,6 +39,30 @@ const config = config_1.loadConfiguration();
                 .listen(config.server.port, () => {
                 console.log('Server running on port:', config.server.port);
             });
+            server.on("error", (err) => {
+                console.error("KOA ERROR HANDLER", err);
+            });
+            process.on('uncaughtException', (err) => {
+                console.error("ODEJS EH", err);
+            });
+            process.on("beforeExit", onExit);
+            process.on("SIGINT", onExit);
+            process.on("SIGTERM", onExit);
+            let isClosing = false;
+            function onExit() {
+                if (isClosing) {
+                    return;
+                }
+                isClosing = true;
+                server.close(function () {
+                    //TODO: dispose loaded entities
+                    process.exit(0);
+                });
+            }
+            ;
+        }
+        else {
+            process.on("disconnect", () => { });
         }
     });
 })();

@@ -12,50 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const koa_router_1 = __importDefault(require("koa-router"));
-const koa_body_1 = __importDefault(require("koa-body"));
-const ajv_1 = __importDefault(require("ajv"));
 const storage_1 = require("./storage");
-const model_1 = require("./model");
-const apiKey = "sendmail";
+const routes_1 = __importDefault(require("./routes"));
+const name = "sendmail";
 const router = new koa_router_1.default();
-let ajv;
-let validatorTemplate;
 exports.default = {
+    name,
     router,
-    route: "/" + apiKey,
+    route: "/" + name,
     init: () => __awaiter(this, void 0, void 0, function* () {
-        yield storage_1.initDb(apiKey);
-        ajv = new ajv_1.default({
-            removeAdditional: true
-        });
-        validatorTemplate = ajv.compile(model_1.dSendEmailSchema);
+        yield storage_1.initDb(name);
+        routes_1.default(router);
     }),
     dispose: () => __awaiter(this, void 0, void 0, function* () { })
 };
-router
-    .post("/sendmail", koa_body_1.default(), function (ctx, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!validatorTemplate(ctx.request.body)) {
-            console.log("POST validator", validatorTemplate.errors);
-            //ctx.throw(400, JSON.stringify(ajv.errors));
-            ctx.status = 400;
-            ctx.type = ".json"; //TODO add json mime
-            ctx.body = {
-                error: "Validation errors!",
-                data: JSON.stringify(ajv.errors)
-            };
-            return;
-        }
-        const vmModel = model_1.factory(ctx);
-        const dbModel = yield storage_1.insert(vmModel);
-        //TODO: async send mail (try/catch => on err update doc as not sent)
-        console.log("POST", dbModel, vmModel);
-        ctx.status = 200;
-        ctx.type = ".json"; //TODO add json mime
-        ctx.body = {
-            message: "Mail sent!",
-            data: dbModel
-        };
-    });
-});
 //# sourceMappingURL=index.js.map

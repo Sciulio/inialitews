@@ -25,9 +25,12 @@ const dynamoloCommonConfig = {
   logError: (...args: any[]) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
 };
 
-export function loadExporters<T>(_path: string, root: string) {
+export function loadExporters<T>(_path: string, root: string, infoMessage: string): T[] {
+  console.log(infoMessage);
+
   //TODO: check order collisions
   //TODO: exceptions handling? stop app?
+  
   return load<T>(path.join(root, _path), dynamoloCommonConfig)
   .sort((a, b) => a.order > b.order ? 1 : -1)
 };

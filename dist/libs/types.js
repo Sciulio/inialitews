@@ -10,7 +10,8 @@ const dynamoloCommonConfig = {
     logInfo: (...args) => console.log("\x1b[35m", "INFO", ...args, "\x1b[0m"),
     logError: (...args) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
 };
-function loadExporters(_path, root) {
+function loadExporters(_path, root, infoMessage) {
+    console.log(infoMessage);
     //TODO: check order collisions
     //TODO: exceptions handling? stop app?
     return dynamolo_1.load(path_1.default.join(root, _path), dynamoloCommonConfig)

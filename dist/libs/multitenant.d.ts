@@ -3,10 +3,10 @@ import { tTenantConfig } from './config';
 import Koa from 'koa';
 export declare type MultiTenantContext = Koa.Context & {
     tenant: {
+        name: string;
         locale: string;
         isDefaultLocale: boolean;
         cacheMaxAge: number;
-        config: tTenantConfig;
     };
 };
 export declare type MultiTenantResxContext = MultiTenantContext & {
@@ -20,7 +20,10 @@ export declare type MultiTenantResxContext = MultiTenantContext & {
 export declare type MultiTenantApiContext = MultiTenantContext & {
     api: {
         requestId: string;
+        name?: string;
+        config?: any;
     };
 };
 export declare function multitenantStrategy(ctx: Koa.Context): tTenantConfig;
 export declare function multitenantPath(ctx: MultiTenantContext): string[];
+export declare function getApiConfig(tenantName: string, apiName: string): any;

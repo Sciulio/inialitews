@@ -12,11 +12,13 @@ const config = loadConfiguration();
 
 export type MultiTenantContext = Koa.Context & {
   tenant: {
+    name: string;
+    
     locale: string;
     isDefaultLocale: boolean;
     cacheMaxAge: number;
 
-    config: tTenantConfig;
+    //config: tTenantConfig;
   };
 }
 export type MultiTenantResxContext = MultiTenantContext & {
@@ -30,6 +32,9 @@ export type MultiTenantResxContext = MultiTenantContext & {
 export type MultiTenantApiContext = MultiTenantContext & {
   api: {
     requestId: string;
+    
+    name?: string;
+    config?: any;
     //isLocalizable: boolean;
   };
 }
@@ -80,5 +85,14 @@ export function multitenantPath(ctx: MultiTenantContext) {
   const relPath = multitenantRelPath(ctx);
 
   //return [path.join(process.cwd(), relPath), relPath];
-  return [path.join(process.cwd(), config.target.root, ctx.tenant.config.name, "www", relPath), relPath];
+  return [path.join(process.cwd(), config.target.root, ctx.tenant.name, "www", relPath), relPath];
+}
+
+export function getApiConfig(tenantName: string, apiName: string) {
+  const tenants = config.tenants;
+  const tenant = Object.keys(tenants)
+  .map(host => tenants[host])
+  .filter(tenant => tenant.name == tenantName)[0];
+  
+  return tenant.apis.filter(api => api.name == apiName)[0].options;
 }

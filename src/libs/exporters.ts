@@ -33,5 +33,5 @@ export function loadExporters<T>(_path: string, root: string, infoMessage: strin
   //TODO: exceptions handling? stop app?
   
   return load<T>(path.join(root, _path), dynamoloCommonConfig)
-  .sort((a, b) => a.order > b.order ? 1 : -1)
+  .sort((a, b) => a.order > b.order ? 1 : -1);
 };

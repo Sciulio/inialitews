@@ -16,7 +16,7 @@ export default {
     const logDirectory = path.join(process.cwd(), config.debug.logs.path);
 
     app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
-      stream: rfs('access.log', {
+      stream: rfs('access_resx.log', {
         interval: '1d', // rotate daily
         path: logDirectory
       })

@@ -22,7 +22,7 @@ exports.default = {
         return __awaiter(this, void 0, void 0, function* () {
             const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
             app.use(koa_morgan_1.default(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
-                stream: rfs('access.log', {
+                stream: rfs('access_resx.log', {
                     interval: '1d',
                     path: logDirectory
                 })

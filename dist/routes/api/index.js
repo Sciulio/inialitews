@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const koa_1 = __importDefault(require("koa"));
 const exporters_1 = require("../../libs/exporters");
 const multitenant_1 = require("../../libs/multitenant");
+const logger_1 = require("../../libs/logger");
 const app = new koa_1.default();
 exports.default = {
     order: 1000,
@@ -21,7 +22,7 @@ exports.default = {
     route: "/_api",
     init: function (parentApp) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(` -  - INIT: App[${"/_api"}]`);
+            logger_1.logger.info(` -  - INIT: App[${"/_api"}]`);
             yield exporters_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
                 .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
                 yield configExport.init(app);

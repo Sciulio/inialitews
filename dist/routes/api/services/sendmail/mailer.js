@@ -8,15 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const logger_1 = require("../../../../libs/logger");
 const sendmail = require('sendmail');
 let _sendmail;
 function sendMailInit() {
     _sendmail = sendmail({
         logger: {
-            debug: console.log,
-            info: console.info,
-            warn: console.warn,
-            error: console.error
+            debug: logger_1.logger.debug,
+            info: logger_1.logger.info,
+            warn: logger_1.logger.warn,
+            error: logger_1.logger.error
         },
         silent: false,
         /*dkim: { // Default: False
@@ -45,7 +46,7 @@ function sendMail(apiConfig, subject, html) {
                 else {
                     res(reply);
                 }
-                console.log(err && err.stack);
+                logger_1.logger.error(err); // && err.stack);
                 console.dir(reply);
             });
         });

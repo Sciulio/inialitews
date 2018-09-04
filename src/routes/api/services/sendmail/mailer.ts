@@ -1,3 +1,5 @@
+import { logger } from "../../../../libs/logger";
+
 const sendmail = require('sendmail');
 
 
@@ -6,10 +8,10 @@ let _sendmail: any;
 export function sendMailInit() {
   _sendmail = sendmail({
     logger: {
-      debug: console.log,
-      info: console.info,
-      warn: console.warn,
-      error: console.error
+      debug: logger.debug,
+      info: logger.info,
+      warn: logger.warn,
+      error: logger.error
     },
     silent: false,
     /*dkim: { // Default: False
@@ -37,7 +39,7 @@ export async function sendMail(apiConfig: any, subject: string, html: string) {
         res(reply);
       }
 
-      console.log(err && err.stack);
+      logger.error(err); // && err.stack);
       console.dir(reply);
     });
   });

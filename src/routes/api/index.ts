@@ -3,6 +3,7 @@ import Koa from 'koa';
 import { tApiExport } from './libs/exporters';
 import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
 import { MultiTenantApiContext, getApiConfig } from '../../libs/multitenant';
+import { logger } from '../../libs/logger';
 
 
 const app = new Koa();
@@ -12,7 +13,7 @@ export default {
   app,
   route: "/_api",
   init: async function(parentApp: Koa) {
-    console.log(` -  - INIT: App[${"/_api"}]`);
+    logger.info(` -  - INIT: App[${"/_api"}]`);
 
     await loadExporters<tConfigExporter>("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
     .mapAsync(async configExport => {

@@ -13,10 +13,10 @@ const config = loadConfiguration();
 export default {
   order: 100,
   init: async function(app: Koa) {
-    const logDirectory = path.join(process.cwd(), config.debug.logs.path);
-
-    app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
-      stream: rfs('access_resx.log', {
+    const logDirectory = path.join(process.cwd(), config.stats.logs.path);
+    
+    app.use(morgan(':tenant :requestId :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
+      stream: rfs('access_apis.log', {
         interval: '1d', // rotate daily
         path: logDirectory
       })

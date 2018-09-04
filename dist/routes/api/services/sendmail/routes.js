@@ -16,6 +16,7 @@ const ajv_1 = __importDefault(require("ajv"));
 const storage_1 = require("./storage");
 const mailer_1 = require("./mailer");
 const model_1 = require("./model");
+const logger_1 = require("../../../../libs/logger");
 function init(router) {
     const ajv = new ajv_1.default({
         removeAdditional: true
@@ -26,7 +27,7 @@ function init(router) {
         .post("/sendmail", koa_body_1.default(), function (ctx, next) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!validatorTemplate(ctx.request.body)) {
-                console.log("POST validator", validatorTemplate.errors);
+                logger_1.logger.debug("POST validator", validatorTemplate.errors);
                 ctx.status = 422;
                 ctx.body = {
                     error: "Validation errors!",

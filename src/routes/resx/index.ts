@@ -10,6 +10,7 @@ import { error404 } from "./libs/errors";
 
 import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
 import { getResxPath } from './libs/files';
+import { logger } from '../../libs/logger';
 
 
 const app = new Koa();
@@ -19,9 +20,9 @@ export default {
   app,
   route: "/",
   init: async function() {
-    console.log(` -  - INIT: App[${"/"}]`);
+    logger.info(` -  - INIT: App[${"/"}]`);
     
-    console.log(" -  - LOAD: App Routes");
+    logger.info(" -  - LOAD: App Routes");
     app
     .use(router.routes())
     .use(router.allowedMethods());

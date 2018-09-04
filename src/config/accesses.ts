@@ -13,7 +13,7 @@ const config = loadConfiguration();
 export default {
   order: 100,
   init: async function (app: any) {
-    const logDirectory = path.join(process.cwd(), config.debug.logs.path);
+    const logDirectory = path.join(process.cwd(), config.stats.logs.path);
     fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory); //TODO use mkdir???
 
     morgan

@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const nedb_1 = __importDefault(require("nedb"));
 const config_1 = require("../../../../libs/config");
+const logger_1 = require("../../../../libs/logger");
 const config = config_1.loadConfiguration();
 let db;
 function initDb(apiKey) {
@@ -27,7 +28,7 @@ function initDb(apiKey) {
                     rej(err);
                 }
                 else {
-                    console.log(" - initted db for api:", apiKey);
+                    logger_1.logger.info(` - initted db for api: ${apiKey}`);
                     res();
                 }
             });

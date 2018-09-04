@@ -3,6 +3,8 @@ import "async-extensions";
 import Koa from 'koa';
 import Mount from 'koa-mount';
 
+import { logger } from "./libs/logger";
+
 import { loadConfiguration } from './libs/config';
 
 import { tConfigExporter, tAppRouteExporter, tServiceExporter, loadExporters } from './libs/exporters';
@@ -18,7 +20,7 @@ const config = loadConfiguration();
     await configExport.init(app);
   });
 
-  await loadExporters<tServiceExporter>("./services/*.js", __dirname, " - LOAD: Services")
+  await loadExporters<tServiceExporter>("./services/*/index.js", __dirname, " - LOAD: Services")
   .mapAsync(async serviceExport => {
     await serviceExport.init(app);
   });
@@ -35,16 +37,16 @@ const config = loadConfiguration();
   if (!module.parent) {
     const server = app
     .listen(config.server.port, () => {
-      console.log('Server running on port:', config.server.port);
+      logger.info(`Server running on port: ${config.server.port}`);
     });
 
 
     //app.on("error", () => {});
     server.on("error", (err) => {
-      console.error("KOA ERROR HANDLER", err);
+      logger.error("KOA ERROR HANDLER", err)
     });
     process.on('uncaughtException', (err) => {
-      console.error("PROCESS ERROR HANDLER", err);
+      logger.error("PROCESS ERROR HANDLER", err);
     });
 
     process
@@ -67,7 +69,7 @@ const config = loadConfiguration();
     };
   } else {
     process.on("disconnect", () => {
-      console.error("disconnetting child process!");
+      logger.error("disconnetting child process!");
     });
   }
 })();

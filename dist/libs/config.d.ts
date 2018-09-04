@@ -9,7 +9,7 @@ export declare type tTenantConfig = {
     apis: tApiConfig[];
 };
 export declare type tConfig = {
-    debug: {
+    stats: {
         logs: {
             path: string;
         };

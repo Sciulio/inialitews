@@ -1,49 +1,16 @@
 import path from 'path';
 import 'async-extensions';
 import Datastore from 'nedb';
-import { loadConfiguration } from '../libs/config';
-import { tServiceExporter } from '../libs/exporters';
+import { loadConfiguration } from '../../libs/config';
+import { tServiceExporter } from '../../libs/exporters';
+import { logger } from '../../libs/logger';
+import { docFileAudit } from './types';
 
 
 const config = loadConfiguration();
 
 //TODO: set a lib:package for this VVVVVVVVVV
 
-export type baseDoc = {
-  _id?: string;
-}
-export type docBuildAudit = baseDoc & {
-  _type: "buildinfo",
-  on: number;
-  duration: number;
-};
-export type docFileAudit = baseDoc & {
-  _type: "fileinfo",
-  _on: number;
-  path: string;
-  url: string;
-  audit: {
-    action: "created" | "edited" | "deleted";
-    version: number;
-  };
-  stats: {
-    hash: string;
-    size: number;
-  };
-  content: {
-    type: string;
-    charset: string;
-    visibility: "public" | "private";
-    lastModified: string;
-  };
-  has: {[keyProp: string]: boolean};
-};
-
-export type tBuildAudit = docBuildAudit & {
-};
-export type tFileAudit = docFileAudit & {
-  buildInfo: tBuildAudit;
-};
 //TODO: set a lib:package for this AAAAAAAA
 
 const dbs: {[key: string]: {
@@ -66,7 +33,7 @@ export default {
           if (err) {
             rej(err);
           } else {
-            console.log(" - initted db for tenant:", tenant.name);
+            logger.info(` - initted db for tenant: ${tenant.name}`);
 
             dbs[tenant.name] = {
               db,

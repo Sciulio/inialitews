@@ -20,6 +20,7 @@ const audit_1 = require("../../services/audit");
 const errors_1 = require("./libs/errors");
 const exporters_1 = require("../../libs/exporters");
 const files_1 = require("./libs/files");
+const logger_1 = require("../../libs/logger");
 const app = new koa_1.default();
 exports.default = {
     order: 1000,
@@ -27,8 +28,8 @@ exports.default = {
     route: "/",
     init: function () {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(` -  - INIT: App[${"/"}]`);
-            console.log(" -  - LOAD: App Routes");
+            logger_1.logger.info(` -  - INIT: App[${"/"}]`);
+            logger_1.logger.info(" -  - LOAD: App Routes");
             app
                 .use(router.routes())
                 .use(router.allowedMethods());

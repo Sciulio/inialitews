@@ -12,32 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const koa_morgan_1 = __importDefault(require("koa-morgan"));
-const config_1 = require("../libs/config");
+const rfs = require('rotating-file-stream');
+const config_1 = require("../../../libs/config");
 const config = config_1.loadConfiguration();
 exports.default = {
     order: 100,
     init: function (app) {
         return __awaiter(this, void 0, void 0, function* () {
-            const logDirectory = path_1.default.join(process.cwd(), config.debug.logs.path);
-            fs_1.default.existsSync(logDirectory) || fs_1.default.mkdirSync(logDirectory); //TODO use mkdir???
-            koa_morgan_1.default
-                .token('tenant', function (req, res) {
-                return (res.getHeader("X-Tenant") || "").toString();
-            })
-                .token('requestId', function (req, res) {
-                return res.requestId;
-            });
-            /*
-            app.use(morgan(':tenant :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { // 'combined'
-              stream: rfs('access.log', {
-                interval: '1d', // rotate daily
-                path: logDirectory
-              })
+            const logDirectory = path_1.default.join(process.cwd(), config.stats.logs.path);
+            app.use(koa_morgan_1.default(':tenant :requestId :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', {
+                stream: rfs('access_apis.log', {
+                    interval: '1d',
+                    path: logDirectory
+                })
             }));
-            */
         });
     }
 };
-//# sourceMappingURL=logger.js.map
+//# sourceMappingURL=accesses.js.map

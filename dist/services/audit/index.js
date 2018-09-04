@@ -14,8 +14,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 require("async-extensions");
 const nedb_1 = __importDefault(require("nedb"));
-const config_1 = require("../libs/config");
+const config_1 = require("../../libs/config");
+const logger_1 = require("../../libs/logger");
 const config = config_1.loadConfiguration();
+//TODO: set a lib:package for this VVVVVVVVVV
 //TODO: set a lib:package for this AAAAAAAA
 const dbs = {};
 exports.default = {
@@ -34,7 +36,7 @@ exports.default = {
                             rej(err);
                         }
                         else {
-                            console.log(" - initted db for tenant:", tenant.name);
+                            logger_1.logger.info(` - initted db for tenant: ${tenant.name}`);
                             dbs[tenant.name] = {
                                 db,
                                 on: Date.now()
@@ -66,4 +68,4 @@ function fetchFileAudit(tenantName, url) {
     });
 }
 exports.fetchFileAudit = fetchFileAudit;
-//# sourceMappingURL=audit.js.map
+//# sourceMappingURL=index.js.map

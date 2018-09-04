@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("async-extensions");
 const koa_1 = __importDefault(require("koa"));
 const koa_mount_1 = __importDefault(require("koa-mount"));
+const logger_1 = require("./libs/logger");
 const config_1 = require("./libs/config");
 const exporters_1 = require("./libs/exporters");
 const config = config_1.loadConfiguration();
@@ -24,7 +25,7 @@ const config = config_1.loadConfiguration();
             .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
             yield configExport.init(app);
         }));
-        yield exporters_1.loadExporters("./services/*.js", __dirname, " - LOAD: Services")
+        yield exporters_1.loadExporters("./services/*/index.js", __dirname, " - LOAD: Services")
             .mapAsync((serviceExport) => __awaiter(this, void 0, void 0, function* () {
             yield serviceExport.init(app);
         }));
@@ -37,14 +38,14 @@ const config = config_1.loadConfiguration();
         if (!module.parent) {
             const server = app
                 .listen(config.server.port, () => {
-                console.log('Server running on port:', config.server.port);
+                logger_1.logger.info(`Server running on port: ${config.server.port}`);
             });
             //app.on("error", () => {});
             server.on("error", (err) => {
-                console.error("KOA ERROR HANDLER", err);
+                logger_1.logger.error("KOA ERROR HANDLER", err);
             });
             process.on('uncaughtException', (err) => {
-                console.error("PROCESS ERROR HANDLER", err);
+                logger_1.logger.error("PROCESS ERROR HANDLER", err);
             });
             process
                 .on("beforeExit", onExit)
@@ -65,7 +66,7 @@ const config = config_1.loadConfiguration();
         }
         else {
             process.on("disconnect", () => {
-                console.error("disconnetting child process!");
+                logger_1.logger.error("disconnetting child process!");
             });
         }
     });

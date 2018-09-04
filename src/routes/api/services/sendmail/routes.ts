@@ -9,6 +9,7 @@ import { sendMailInit, sendMail } from './mailer';
 
 import { dSendEmailSchema, tSendEmailDb, factory } from './model';
 import { MultiTenantApiContext } from '../../../../libs/multitenant';
+import { logger } from '../../../../libs/logger';
 
 
 export default function init(router: Router) {
@@ -22,7 +23,7 @@ export default function init(router: Router) {
   router
   .post("/sendmail", koaBody(), async function (ctx: Koa.Context, next: () => Promise<any>) {
     if (!validatorTemplate(ctx.request.body)) {
-      console.log("POST validator", validatorTemplate.errors);
+      logger.debug("POST validator", validatorTemplate.errors);
 
       ctx.status = 422;
       ctx.body = {

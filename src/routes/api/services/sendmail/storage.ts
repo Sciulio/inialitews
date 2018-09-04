@@ -2,6 +2,7 @@ import path from 'path';
 import Datastore from 'nedb';
 import { loadConfiguration } from '../../../../libs/config';
 import { tSendEmailVM } from './model';
+import { logger } from '../../../../libs/logger';
 
 
 const config = loadConfiguration();
@@ -17,7 +18,7 @@ export async function initDb(apiKey: string) {
       if (err) {
         rej(err);
       } else {
-        console.log(" - initted db for api:", apiKey);
+        logger.info(` - initted db for api: ${apiKey}`);
         res();
       }
     });

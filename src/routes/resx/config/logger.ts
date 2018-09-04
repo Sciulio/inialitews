@@ -4,7 +4,7 @@ import Koa from 'koa';
 import morgan from 'koa-morgan';
 const rfs = require('rotating-file-stream');
 
-import { tConfigExporter } from "../../../libs/types";
+import { tConfigExporter } from "../../../libs/exporters";
 import { loadConfiguration } from '../../../libs/config';
 
 

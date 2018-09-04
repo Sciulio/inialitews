@@ -1,6 +1,6 @@
 import Router from 'koa-router';
 
-import { tApiExport } from '../../base';
+import { tApiExport } from '../../libs/exporters';
 import { initDb } from './storage';
 
 import init from './routes';

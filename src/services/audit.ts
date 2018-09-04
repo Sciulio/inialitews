@@ -2,7 +2,7 @@ import path from 'path';
 import 'async-extensions';
 import Datastore from 'nedb';
 import { loadConfiguration } from '../libs/config';
-import { tServiceExporter } from '../libs/types';
+import { tServiceExporter } from '../libs/exporters';
 
 
 const config = loadConfiguration();

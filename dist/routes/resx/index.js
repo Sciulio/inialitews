@@ -17,9 +17,9 @@ const koa_1 = __importDefault(require("koa"));
 const koa_router_1 = __importDefault(require("koa-router"));
 const multitenant_1 = require("../../libs/multitenant");
 const audit_1 = require("../../services/audit");
-const helpers_1 = require("./helpers");
-const types_1 = require("../../libs/types");
-const rfs = require('rotating-file-stream');
+const errors_1 = require("./libs/errors");
+const exporters_1 = require("../../libs/exporters");
+const files_1 = require("./libs/files");
 const app = new koa_1.default();
 exports.default = {
     order: 1000,
@@ -32,7 +32,7 @@ exports.default = {
             app
                 .use(router.routes())
                 .use(router.allowedMethods());
-            yield types_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: App Configurations")
+            yield exporters_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: App Configurations")
                 .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
                 yield configExport.init(app);
             }));
@@ -53,7 +53,7 @@ router
         const tenant = ctx.tenant;
         const dbItem = yield audit_1.fetchFileAudit(tenant.name, url);
         if (!dbItem) {
-            return helpers_1.error404(ctx);
+            return errors_1.error404(ctx);
         }
         //TODO: read this information from db => dbItem.isLocalizable
         ctx.resx = {
@@ -68,11 +68,13 @@ router
         //if (type === false) ctx.throw(406);
         ctx.type = ext;
         // https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
-        ctx.response.set("Content-Length", dbItem.stats.size.toString());
-        ctx.response.set("Content-Type", dbItem.content.type + "; charset=" + dbItem.content.charset);
-        ctx.response.set("Cache-Control", dbItem.content.visibility + ", max-age=" + tenant.cacheMaxAge);
-        ctx.response.set("Last-Modified", dbItem.content.lastModified);
-        ctx.response.set("ETag", dbItem.stats.hash);
+        const dbItemStats = dbItem.stats;
+        const dbItemContent = dbItem.content;
+        ctx.response.set("Content-Length", dbItemStats.size.toString());
+        ctx.response.set("Content-Type", dbItemContent.type + "; charset=" + dbItemContent.charset);
+        ctx.response.set("Cache-Control", dbItemContent.visibility + ", max-age=" + tenant.cacheMaxAge);
+        ctx.response.set("Last-Modified", dbItemContent.lastModified);
+        ctx.response.set("ETag", dbItemStats.hash);
         /*
         If-Match
         If-Unmodified-Since = "If-Unmodified-Since" ":" HTTP-date
@@ -86,9 +88,9 @@ router
             return;
         }
         //if ctx.is('image/*')
-        const effectivePath = yield helpers_1.checkForEffectivePath(ctx);
+        const effectivePath = yield files_1.getResxPath(ctx);
         if (!effectivePath) {
-            return helpers_1.error404(ctx);
+            return errors_1.error404(ctx);
         }
         ctx.body = yield fs_1.default.createReadStream(effectivePath);
     });

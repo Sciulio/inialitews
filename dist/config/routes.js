@@ -19,14 +19,8 @@ exports.default = {
                         yield next();
                     }
                     catch (err) {
-                        ctx.status = err.status || 500;
-                        let bodyMessage = null;
-                        if (ctx.status == 404) {
-                            bodyMessage = err.message || 'Page Not Found';
-                        }
-                        else {
-                            bodyMessage = err.message || "Something exploded!!!";
-                        }
+                        ctx.status = !err.status || err.status < 400 ? 500 : err.status;
+                        const bodyMessage = err.message || ctx.status == 404 ? 'Page Not Found' : "Something exploded!!!";
                         switch (ctx.accepts('html', 'json')) {
                             case 'html':
                                 ctx.type = 'html';

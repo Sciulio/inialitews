@@ -6,13 +6,10 @@ import Router from 'koa-router';
 
 import { MultiTenantContext, MultiTenantResxContext, multitenantPath } from "../../libs/multitenant";
 import { fetchFileAudit } from '../../services/audit';
-import { checkForEffectivePath, error404 } from './helpers';
+import { error404 } from "./libs/errors";
 
-import { loadConfiguration } from '../../libs/config';
-
-import morgan from 'koa-morgan';
-import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/types';
-const rfs = require('rotating-file-stream');
+import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
+import { getResxPath } from './libs/files';
 
 
 const app = new Koa();
@@ -70,11 +67,14 @@ router
 
   // https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
 
-  ctx.response.set("Content-Length", dbItem.stats.size.toString());
-  ctx.response.set("Content-Type", dbItem.content.type + "; charset=" + dbItem.content.charset);
-  ctx.response.set("Cache-Control", dbItem.content.visibility + ", max-age=" + tenant.cacheMaxAge);
-  ctx.response.set("Last-Modified", dbItem.content.lastModified);
-  ctx.response.set("ETag", dbItem.stats.hash);
+  const dbItemStats = dbItem.stats;
+  const dbItemContent = dbItem.content;
+
+  ctx.response.set("Content-Length", dbItemStats.size.toString());
+  ctx.response.set("Content-Type", dbItemContent.type + "; charset=" + dbItemContent.charset);
+  ctx.response.set("Cache-Control", dbItemContent.visibility + ", max-age=" + tenant.cacheMaxAge);
+  ctx.response.set("Last-Modified", dbItemContent.lastModified);
+  ctx.response.set("ETag", dbItemStats.hash);
 
   /*
   If-Match
@@ -92,7 +92,7 @@ router
 
   //if ctx.is('image/*')
 
-  const effectivePath = await checkForEffectivePath(ctx as MultiTenantResxContext);
+  const effectivePath = await getResxPath(ctx as MultiTenantResxContext);
   if (!effectivePath) {
     return error404(ctx);
   }

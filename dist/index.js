@@ -15,20 +15,20 @@ require("async-extensions");
 const koa_1 = __importDefault(require("koa"));
 const koa_mount_1 = __importDefault(require("koa-mount"));
 const config_1 = require("./libs/config");
-const types_1 = require("./libs/types");
+const exporters_1 = require("./libs/exporters");
 const config = config_1.loadConfiguration();
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
         const app = new koa_1.default();
-        yield types_1.loadExporters("./config/*.js", __dirname, " - LOAD: App Configurations")
+        yield exporters_1.loadExporters("./config/*.js", __dirname, " - LOAD: App Configurations")
             .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
             yield configExport.init(app);
         }));
-        yield types_1.loadExporters("./services/*.js", __dirname, " - LOAD: Services")
+        yield exporters_1.loadExporters("./services/*.js", __dirname, " - LOAD: Services")
             .mapAsync((serviceExport) => __awaiter(this, void 0, void 0, function* () {
             yield serviceExport.init(app);
         }));
-        yield types_1.loadExporters("./routes/*/index.js", __dirname, " - MOUNT: AppedRoutes")
+        yield exporters_1.loadExporters("./routes/*/index.js", __dirname, " - MOUNT: AppedRoutes")
             .mapAsync((appExport) => __awaiter(this, void 0, void 0, function* () {
             app.use(koa_mount_1.default(appExport.route, appExport.app));
             yield appExport.init(app);
@@ -39,15 +39,17 @@ const config = config_1.loadConfiguration();
                 .listen(config.server.port, () => {
                 console.log('Server running on port:', config.server.port);
             });
+            //app.on("error", () => {});
             server.on("error", (err) => {
                 console.error("KOA ERROR HANDLER", err);
             });
             process.on('uncaughtException', (err) => {
-                console.error("ODEJS EH", err);
+                console.error("PROCESS ERROR HANDLER", err);
             });
-            process.on("beforeExit", onExit);
-            process.on("SIGINT", onExit);
-            process.on("SIGTERM", onExit);
+            process
+                .on("beforeExit", onExit)
+                .on("SIGINT", onExit)
+                .on("SIGTERM", onExit);
             let isClosing = false;
             function onExit() {
                 if (isClosing) {
@@ -62,7 +64,9 @@ const config = config_1.loadConfiguration();
             ;
         }
         else {
-            process.on("disconnect", () => { });
+            process.on("disconnect", () => {
+                console.error("disconnetting child process!");
+            });
         }
     });
 })();

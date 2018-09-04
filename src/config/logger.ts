@@ -5,7 +5,7 @@ import fs from 'fs';
 import morgan from 'koa-morgan';
 
 import { loadConfiguration } from '../libs/config';
-import { tConfigExporter } from '../libs/types';
+import { tConfigExporter } from '../libs/exporters';
 
 
 const config = loadConfiguration();

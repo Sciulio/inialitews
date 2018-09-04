@@ -1,7 +1,7 @@
 import Koa from "koa";
 
 import compress from 'koa-compress';
-import { tConfigExporter } from "../libs/types";
+import { tConfigExporter } from "../libs/exporters";
 
 
 export default {

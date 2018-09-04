@@ -7,6 +7,7 @@ import Koa from 'koa';
 
 export type tConfigExporter = {
   order: number;
+  
   init: (app: Koa) => Promise<void>;
   dispose: () => Promise<void>;
 };

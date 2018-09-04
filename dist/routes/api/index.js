@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const koa_1 = __importDefault(require("koa"));
-const types_1 = require("../../libs/types");
+const exporters_1 = require("../../libs/exporters");
 const multitenant_1 = require("../../libs/multitenant");
 const app = new koa_1.default();
 exports.default = {
@@ -22,11 +22,11 @@ exports.default = {
     init: function (parentApp) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(` -  - INIT: App[${"/_api"}]`);
-            yield types_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
+            yield exporters_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
                 .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
                 yield configExport.init(app);
             }));
-            yield types_1.loadExporters("./services/*/index.js", __dirname, " -  - LOAD: Routes")
+            yield exporters_1.loadExporters("./services/*/index.js", __dirname, " -  - LOAD: Routes")
                 .forEachAsync((routeExport) => __awaiter(this, void 0, void 0, function* () {
                 //TODO: preroute
                 routeExport.router.use(function (ctx, next) {

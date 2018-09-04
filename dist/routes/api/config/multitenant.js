@@ -22,11 +22,10 @@ exports.default = {
 };
 function multitenantMiddleware(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const requestId = shortid_1.default();
+        const requestId = ctx.res.requestId = shortid_1.default();
         ctx.api = {
             requestId
         };
-        ctx.res.requestId = requestId;
         yield next();
     });
 }

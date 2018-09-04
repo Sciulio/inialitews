@@ -1,7 +1,7 @@
 import Koa from 'koa';
 
 import { multitenantStrategy, MultiTenantContext } from "../libs/multitenant";
-import { tConfigExporter } from '../libs/types';
+import { tConfigExporter } from '../libs/exporters';
 
 
 export default {

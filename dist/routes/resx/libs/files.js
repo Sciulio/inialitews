@@ -33,7 +33,8 @@ function checkFile(_path) {
         });
     });
 }
-function checkForEffectivePath(ctx) {
+exports.checkFile = checkFile;
+function getResxPath(ctx) {
     return __awaiter(this, void 0, void 0, function* () {
         let _path = ctx.resx.absPath;
         if (ctx.resx.isLocalizable && !ctx.tenant.isDefaultLocale) {
@@ -48,11 +49,5 @@ function checkForEffectivePath(ctx) {
         return null;
     });
 }
-exports.checkForEffectivePath = checkForEffectivePath;
-function error404(ctx) {
-    ctx.status = 404;
-    //TODO: load 404 page
-    ctx.body = "ERROREE 404!";
-}
-exports.error404 = error404;
-//# sourceMappingURL=helpers.js.map
+exports.getResxPath = getResxPath;
+//# sourceMappingURL=files.js.map

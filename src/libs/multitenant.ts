@@ -2,6 +2,7 @@ import url from 'url';
 import path from 'path';
 import { loadConfiguration, tTenantConfig } from './config';
 import Koa from 'koa';
+import { urlToPath } from './url';
 
 
 /*
@@ -53,39 +54,11 @@ export function multitenantStrategy(ctx: Koa.Context) {
   return config.tenants[host];
 }
 
-function multitenantRelPath(ctx: MultiTenantContext): string {
-  const _url = ctx.url || "";
-
-  // parse URL
-  const parsedUrl = url.parse(_url);
-  // extract URL path
-  let pathnameUrl = `.${parsedUrl.pathname}`;
-
-  if (pathnameUrl.endsWith("/")) {
-    pathnameUrl = path.join(pathnameUrl, "index.html");
-  }
-
-  let fileName = path.basename(pathnameUrl);
-  let filePath = path.dirname(pathnameUrl);
-  const fileExt = path.extname(pathnameUrl);
-
-  if (!fileExt) {
-    fileName += ".html";
-  }
-
-  if (filePath[0] != "/") {
-    filePath = "/" + filePath;
-  }
-  filePath = path.normalize(filePath);
-
-  //return path.join(config.target.root, ctx.tenant.staticPath, filePath, fileName);
-  return path.join(filePath, fileName);
-}
 export function multitenantPath(ctx: MultiTenantContext) {
-  const relPath = multitenantRelPath(ctx);
+  const relPath = urlToPath(ctx.URL); // url.url
+  const absPath = path.join(process.cwd(), config.target.root, ctx.tenant.name, "www", relPath);
 
-  //return [path.join(process.cwd(), relPath), relPath];
-  return [path.join(process.cwd(), config.target.root, ctx.tenant.name, "www", relPath), relPath];
+  return [absPath, relPath];
 }
 
 export function getApiConfig(tenantName: string, apiName: string) {

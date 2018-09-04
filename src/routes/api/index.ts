@@ -1,8 +1,7 @@
 import Koa from 'koa';
-import { IRouterContext } from 'koa-router';
 
-import { tApiExport } from './base';
-import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/types';
+import { tApiExport } from './libs/exporters';
+import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
 import { MultiTenantApiContext, getApiConfig } from '../../libs/multitenant';
 
 

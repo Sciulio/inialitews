@@ -5,7 +5,7 @@ import Mount from 'koa-mount';
 
 import { loadConfiguration } from './libs/config';
 
-import { tConfigExporter, tAppRouteExporter, tServiceExporter, loadExporters } from './libs/types';
+import { tConfigExporter, tAppRouteExporter, tServiceExporter, loadExporters } from './libs/exporters';
 
 
 const config = loadConfiguration();
@@ -38,16 +38,19 @@ const config = loadConfiguration();
       console.log('Server running on port:', config.server.port);
     });
 
+
+    //app.on("error", () => {});
     server.on("error", (err) => {
       console.error("KOA ERROR HANDLER", err);
     });
     process.on('uncaughtException', (err) => {
-      console.error("ODEJS EH", err);
+      console.error("PROCESS ERROR HANDLER", err);
     });
 
-    process.on("beforeExit", onExit);
-    process.on("SIGINT", onExit);
-    process.on("SIGTERM", onExit);
+    process
+    .on("beforeExit", onExit)
+    .on("SIGINT", onExit)
+    .on("SIGTERM", onExit);
 
     let isClosing = false;
     function onExit() {
@@ -63,6 +66,8 @@ const config = loadConfiguration();
       });
     };
   } else {
-    process.on("disconnect", () => {});
+    process.on("disconnect", () => {
+      console.error("disconnetting child process!");
+    });
   }
 })();

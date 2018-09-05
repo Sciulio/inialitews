@@ -1,6 +1,6 @@
-/// <reference types="koa-router" />
-import { tTenantConfig } from './config';
 import Koa from 'koa';
+import Router from 'koa-router';
+import { tTenantConfig } from './config';
 export declare type MultiTenantContext = Koa.Context & {
     tenant: {
         name: string;
@@ -8,8 +8,11 @@ export declare type MultiTenantContext = Koa.Context & {
         isDefaultLocale: boolean;
         cacheMaxAge: number;
     };
+    access: {
+        requestOn: number;
+    };
 };
-export declare type MultiTenantResxContext = MultiTenantContext & {
+export declare type MultiTenantResxContext = MultiTenantContext & Router.IRouterContext & {
     resx: {
         absPath: string;
         relPath: string;
@@ -17,7 +20,7 @@ export declare type MultiTenantResxContext = MultiTenantContext & {
         isLocalizable: boolean;
     };
 };
-export declare type MultiTenantApiContext = MultiTenantContext & {
+export declare type MultiTenantApiContext = MultiTenantContext & Router.IRouterContext & {
     api: {
         requestId: string;
         name?: string;

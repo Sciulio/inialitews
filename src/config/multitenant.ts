@@ -11,7 +11,7 @@ export default {
   }
 } as tConfigExporter;
 
-async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>){
+async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>) {
   const tenant = multitenantStrategy(ctx);
 
   if (tenant) {

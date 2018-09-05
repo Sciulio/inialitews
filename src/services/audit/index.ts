@@ -1,20 +1,22 @@
+import fs from 'fs';
 import path from 'path';
+import readline from 'readline';
+
 import 'async-extensions';
-import Datastore from 'nedb';
+
 import { loadConfiguration } from '../../libs/config';
 import { tServiceExporter } from '../../libs/exporters';
-import { logger } from '../../libs/logger';
 import { docFileAudit } from './types';
 
 
 const config = loadConfiguration();
 
-//TODO: set a lib:package for this VVVVVVVVVV
-
-//TODO: set a lib:package for this AAAAAAAA
+type tDataSet = {
+  items: any[]
+};
 
 const dbs: {[key: string]: {
-  db: Datastore,
+  db: tDataSet,
   on: number
 }} = {};
 
@@ -24,43 +26,61 @@ export default {
     await Object.keys(config.tenants)
     .forEachAsync(async tenantKey => {
       const tenant = config.tenants[tenantKey];
-      const db = new Datastore({
-        filename: path.join(config.target.root, tenant.name, "audit.nedb")
-      });
-      
-      await new Promise((res, rej) => {
-        db.loadDatabase((err) => {
-          if (err) {
-            rej(err);
-          } else {
-            logger.info(` - initted db for tenant: ${tenant.name}`);
 
-            dbs[tenant.name] = {
-              db,
-              on: Date.now()
-            };
-
-            res();
-          }
-        });
-      });
+      dbs[tenant.name] = {
+        db: await loadTenantAudit(tenant.name),
+        on: Date.now()
+      };
     });
   },
   dispose: async function() {
-    
+    Object.keys(dbs)
+    .forEach(dbKey => {
+      const db = dbs[dbKey];
+      delete dbs[dbKey];
+
+      db.db.items.length = 0;
+      delete db.db.items;
+      delete db.db;
+    });
   }
 } as tServiceExporter;
 
-export async function fetchFileAudit(tenantName: string, url: string) {
-  const db = dbs[tenantName].db;
+async function loadTenantAudit(tenantName: string): Promise<tDataSet> {
+  const dbFileName = path.join(config.target.root, tenantName, "audit.nedb");
+  const dataSet: tDataSet = {
+    items: []
+  };
 
-  return new Promise<docFileAudit>((res, rej) => {
-    db.findOne<docFileAudit>({
-      url
-    }, function (err, doc) {
-      // doc is the document Mars
-      // If no document is found, doc is null
-      err ? rej(err) : res(doc);
+  return new Promise<tDataSet>((res, rej) => {
+    //TODO: manage errors
+
+    const lineReader = readline
+    .createInterface({
+      input: fs.createReadStream(dbFileName)
+    });
+    
+    lineReader.on('line', function (line) {
+      const item = JSON.parse(line);
+      dataSet.items.push(item);
+    });
+    lineReader.on('close', function() {
+      lineReader.close();
+
+      res(dataSet);
     });
   });
+}
+
+export async function fetchFileAudit(tenantName: string, url: string) {
+  /*if (!(tenantName in dbs)) {
+    TODO: sync
+    dbs[tenantName] = {
+      db: await loadTenantAudit(tenantName),
+      on: Date.now()
+    };
+  }*/
+
+  const db = dbs[tenantName].db;
+  return db.items.filter((item: docFileAudit) => item.url == url)[0];
 }

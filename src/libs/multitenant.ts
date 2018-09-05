@@ -1,7 +1,9 @@
-import url from 'url';
 import path from 'path';
-import { loadConfiguration, tTenantConfig } from './config';
+
 import Koa from 'koa';
+import Router from 'koa-router';
+
+import { loadConfiguration, tTenantConfig } from './config';
 import { urlToPath } from './url';
 
 
@@ -21,8 +23,13 @@ export type MultiTenantContext = Koa.Context & {
 
     //config: tTenantConfig;
   };
+  access: {
+    //requestId: string;
+    requestOn: number;
+    //requestDelay?: number;
+  };
 }
-export type MultiTenantResxContext = MultiTenantContext & {
+export type MultiTenantResxContext = MultiTenantContext & Router.IRouterContext & {
   resx: {
     absPath: string;
     relPath: string;
@@ -30,7 +37,7 @@ export type MultiTenantResxContext = MultiTenantContext & {
     isLocalizable: boolean;
   };
 }
-export type MultiTenantApiContext = MultiTenantContext & {
+export type MultiTenantApiContext = MultiTenantContext & Router.IRouterContext & {
   api: {
     requestId: string;
     

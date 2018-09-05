@@ -12,13 +12,14 @@ export async function initDb(apiKey: string) {
   db = new Datastore({
     filename: path.join(process.cwd(), config.services.db.path, apiKey + ".nedb")
   });
-    
+  
   await new Promise((res, rej) => {
     db.loadDatabase((err) => {
       if (err) {
         rej(err);
       } else {
         logger.info(` - initted db for api: ${apiKey}`);
+
         res();
       }
     });

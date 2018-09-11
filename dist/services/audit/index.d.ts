@@ -1,4 +1,5 @@
 import 'async-extensions';
-declare const _default: import("../../../../../Sviluppo/IniaLiteWs/src/libs/exporters").tConfigExporter;
+import { tServiceExporter } from '../../libs/exporters';
+export declare let fetchFileAudit: <T>(tenantName: string, url: string) => Promise<T>;
+declare const _default: tServiceExporter;
 export default _default;
-export declare function fetchFileAudit(tenantName: string, url: string): Promise<any>;

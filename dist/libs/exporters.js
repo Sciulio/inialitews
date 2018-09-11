@@ -8,10 +8,10 @@ const dynamolo_1 = require("dynamolo");
 const logger_1 = require("./logger");
 const dynamoloCommonConfig = {
     exportDefault: true,
-    logInfo: logger_1.logger.info,
-    logError: logger_1.logger.error
     //logInfo: (...args: any[]) => console.log("\x1b[35m", "INFO", ...args, "\x1b[0m"),
     //logError: (...args: any[]) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
+    logInfo: (...args) => logger_1.logger.info(args.join("\t")),
+    logError: (...args) => logger_1.logger.error(args.join("\t"))
 };
 function loadExporters(_path, root, infoMessage) {
     logger_1.logger.info(infoMessage);

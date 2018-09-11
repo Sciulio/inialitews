@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
-const nedb_1 = __importDefault(require("nedb"));
-const config_1 = require("../../../../libs/config");
 const logger_1 = require("../../../../libs/logger");
+const nedb_1 = __importDefault(require("nedb"));
+//const Datastore = require('nedb-multi')(8085);
+const config_1 = require("../../../../libs/config");
 const config = config_1.loadConfiguration();
+//let db: Datastore;
 let db;
 function initDb(apiKey) {
     return __awaiter(this, void 0, void 0, function* () {

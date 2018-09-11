@@ -11,6 +11,7 @@ import { error404 } from "./libs/errors";
 import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
 import { getResxPath } from './libs/files';
 import { logger } from '../../libs/logger';
+import { tFileAudit } from '../../services/audit/types';
 
 
 const app = new Koa();
@@ -47,7 +48,7 @@ router
 
   const tenant = (ctx as MultiTenantContext).tenant;
 
-  const dbItem = await fetchFileAudit(tenant.name, url);
+  const dbItem = await fetchFileAudit<tFileAudit>(tenant.name, url);
   if (!dbItem) {
     return error404(ctx);
   }

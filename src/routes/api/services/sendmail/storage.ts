@@ -1,12 +1,17 @@
 import path from 'path';
+
+import { logger } from '../../../../libs/logger';
+
 import Datastore from 'nedb';
+//const Datastore = require('nedb-multi')(8085);
+
 import { loadConfiguration } from '../../../../libs/config';
 import { tSendEmailVM } from './model';
-import { logger } from '../../../../libs/logger';
 
 
 const config = loadConfiguration();
-let db: Datastore;
+//let db: Datastore;
+let db: any;
 
 export async function initDb(apiKey: string) {
   db = new Datastore({
@@ -14,7 +19,7 @@ export async function initDb(apiKey: string) {
   });
   
   await new Promise((res, rej) => {
-    db.loadDatabase((err) => {
+    db.loadDatabase((err: Error) => {
       if (err) {
         rej(err);
       } else {
@@ -28,7 +33,7 @@ export async function initDb(apiKey: string) {
 
 export async function insert<T extends tSendEmailVM>(item: tSendEmailVM) {
   return new Promise<T>((res, rej) => {
-    db.insert(item, (err, doc) => {
+    db.insert(item, (err: Error, doc: {}) => {
       if (err) {
         rej(err);
       }

@@ -13,7 +13,9 @@ export type tConfigExporter = {
   dispose: () => Promise<void>;
 };
 
-export type tServiceExporter = tConfigExporter;
+export type tServiceExporter = tConfigExporter & {
+  init: () => Promise<void>;
+};
 
 export type tAppRouteExporter = tConfigExporter & {
   app: Koa;
@@ -23,10 +25,10 @@ export type tAppRouteExporter = tConfigExporter & {
 
 const dynamoloCommonConfig = {
   exportDefault: true,
-  logInfo: logger.info,
-  logError: logger.error
   //logInfo: (...args: any[]) => console.log("\x1b[35m", "INFO", ...args, "\x1b[0m"),
   //logError: (...args: any[]) => console.log("\x1b[31m", "ERROR", ...args, "\x1b[0m")
+  logInfo: (...args: any[]) => logger.info(args.join("\t")),
+  logError: (...args: any[]) => logger.error(args.join("\t"))
 };
 
 export function loadExporters<T>(_path: string, root: string, infoMessage: string): T[] {

@@ -4,7 +4,9 @@ export declare type tConfigExporter = {
     init: (app: Koa) => Promise<void>;
     dispose: () => Promise<void>;
 };
-export declare type tServiceExporter = tConfigExporter;
+export declare type tServiceExporter = tConfigExporter & {
+    init: () => Promise<void>;
+};
 export declare type tAppRouteExporter = tConfigExporter & {
     app: Koa;
     route: string;

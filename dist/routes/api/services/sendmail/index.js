@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const koa_router_1 = __importDefault(require("koa-router"));
 const storage_1 = require("./storage");
 const routes_1 = __importDefault(require("./routes"));
+const clustering_1 = require("../../../../libs/clustering");
 const name = "sendmail";
 const router = new koa_router_1.default();
 exports.default = {
@@ -21,6 +22,9 @@ exports.default = {
     router,
     route: "/" + name,
     init: () => __awaiter(this, void 0, void 0, function* () {
+        if (!clustering_1.isMasterProcess()) {
+            return;
+        }
         yield storage_1.initDb(name);
         routes_1.default(router);
     }),

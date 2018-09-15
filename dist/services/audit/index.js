@@ -17,7 +17,7 @@ const readline_1 = __importDefault(require("readline"));
 require("async-extensions");
 const config_1 = require("../../libs/config");
 const logger_1 = require("../../libs/logger");
-const clustering_1 = require("../../libs/clustering");
+const workers_1 = require("../../libs/workers");
 const clusterbus_1 = require("../../libs/clusterbus");
 const config = config_1.loadConfiguration();
 const rgxpStringValueEnd = /\s*(?<!\\)"(.*?)(?<!\\)"\s*[,\}]/;
@@ -129,9 +129,9 @@ function loadTenantAudit(tenantName) {
         });
     });
 }
-const queueLabel = "audit_fetchdata";
-if (clustering_1.isMasterProcess()) {
-    clusterbus_1.subscribeReqResChannel(queueLabel, (data) => __awaiter(this, void 0, void 0, function* () { return yield exports.fetchFileAudit(data.tenantName, data.url); }));
+const channelLabel = "audit_fetchdata";
+if (workers_1.isMasterProcess()) {
+    clusterbus_1.subscribeReqResChannel(channelLabel, (data) => __awaiter(this, void 0, void 0, function* () { return yield exports.fetchFileAudit(data.tenantName, data.url); }));
     exports.fetchFileAudit = function (tenantName, url) {
         /*if (!(tenantName in dbs)) {
           TODO: sync
@@ -150,7 +150,7 @@ if (clustering_1.isMasterProcess()) {
 else {
     exports.fetchFileAudit = function (tenantName, url) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield clusterbus_1.requestMaster(queueLabel, {
+            return yield clusterbus_1.requestMaster(channelLabel, {
                 tenantName,
                 url
             });
@@ -162,7 +162,7 @@ exports.default = {
     order: 100,
     init: function () {
         return __awaiter(this, void 0, void 0, function* () {
-            if (clustering_1.isMasterProcess()) {
+            if (workers_1.isMasterProcess()) {
                 yield Object.keys(config.tenants)
                     .forEachAsync((tenantKey) => __awaiter(this, void 0, void 0, function* () {
                     const tenant = config.tenants[tenantKey];
@@ -176,7 +176,7 @@ exports.default = {
     },
     dispose: function () {
         return __awaiter(this, void 0, void 0, function* () {
-            if (clustering_1.isMasterProcess()) {
+            if (workers_1.isMasterProcess()) {
                 Object.keys(dbs)
                     .forEach(dbKey => {
                     const db = dbs[dbKey];

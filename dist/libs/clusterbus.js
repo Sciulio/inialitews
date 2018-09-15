@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cluster_1 = __importDefault(require("cluster"));
-const clustering_1 = require("./clustering");
+const workers_1 = require("./workers");
 let _requestTimeout = 0;
 let _logDebug = console.debug;
 let _logInfo = console.log;
@@ -26,51 +26,51 @@ function config(options) {
     _logError = options.logError || _logError;
 }
 exports.config = config;
-/*export let sendTransaction:
-(<T>(queueLabel: string, data: any) => Promise<T>)|
-(<T>(queueLabel: string, data: any, cback: tTransactionCback<T>) => void)
+/*export let requestMaster:
+  (<T>(channelLabel: string, data: any) => Promise<T>)|
+  (<T>(channelLabel: string, data: any, cback: tResponseResolver<T>) => void)
 ;*/
-const _ERROR_queueNotFound = 400;
-const _ERROR_queueExecutorThrown = 500;
-const _ERROR_queueTimeout = 600;
-if (clustering_1.isMasterProcess()) {
-    const registeredQueues = {};
+const _ERROR_channelNotFound = 400;
+const _ERROR_channelExecutorThrown = 500;
+const _ERROR_channelTimeout = 600;
+if (workers_1.isMasterProcess()) {
+    const registeredChannels = {};
     cluster_1.default.addListener("message", (worker, message, handle) => __awaiter(this, void 0, void 0, function* () {
         _logDebug(`ClusterBus::message from worker ${worker.id} with message ${JSON.stringify(message)}`);
         if ("transactionId" in message) {
             const transactionId = message.transactionId;
-            const queueLabel = message.queueLabel;
-            const queueWrapper = registeredQueues[queueLabel];
+            const channelLabel = message.channelLabel;
+            const channelWrapper = registeredChannels[channelLabel];
             const toSendObj = {
                 transactionId
             };
-            if (queueWrapper) {
-                _logInfo(`ClusterBus::Queue '${queueLabel}' called within transaction '${transactionId}'`);
-                const executor = queueWrapper.context ?
-                    queueWrapper.func.bind(queueWrapper.context) :
-                    queueWrapper.func;
+            if (channelWrapper) {
+                _logInfo(`ClusterBus::Channel '${channelLabel}' called within transaction '${transactionId}'`);
+                const executor = channelWrapper.context ?
+                    channelWrapper.func.bind(channelWrapper.context) :
+                    channelWrapper.func;
                 try {
                     toSendObj.data = yield executor(message.data);
                 }
                 catch (err) {
                     _logError(err);
-                    toSendObj.error = _ERROR_queueExecutorThrown;
+                    toSendObj.error = _ERROR_channelExecutorThrown;
                     toSendObj.data = err;
                 }
             }
             else {
-                _logWarning(`ClusterBus::Queue labeled '${queueLabel}' called but not actually registered!`);
-                toSendObj.error = _ERROR_queueNotFound;
+                _logWarning(`ClusterBus::Channel labeled '${channelLabel}' called but not actually registered!`);
+                toSendObj.error = _ERROR_channelNotFound;
             }
             worker.send(toSendObj);
         }
     }));
-    exports.subscribeReqResChannel = function (queueLabel, executor, context) {
-        if (queueLabel in registeredQueues) {
-            throw new Error("Already registered queue: " + queueLabel);
+    exports.subscribeReqResChannel = function (channelLabel, executor, context) {
+        if (channelLabel in registeredChannels) {
+            throw new Error("Already registered channel: " + channelLabel);
         }
-        _logInfo(`ClusterBus::Registering '${queueLabel}' queue!`);
-        registeredQueues[queueLabel] = {
+        _logInfo(`ClusterBus::Registering '${channelLabel}' channel!`);
+        registeredChannels[channelLabel] = {
             func: executor,
             context
         };
@@ -79,13 +79,13 @@ if (clustering_1.isMasterProcess()) {
 else {
     const transactionSet = {};
     //TODO: sendHandle?
-    exports.requestMaster = function (queueLabel, data, cbackRecolver) {
+    exports.requestMaster = function (channelLabel, data, cbackRecolver) {
         //TODO: manage collisions????
         const transactionId = Math.random().toString();
-        _logDebug(`ClusterBus::sendTransaction '${transactionId}' on queue '${queueLabel}' with data ${JSON.stringify(data)}`);
-        //_logInfo(`ClusterBus::sendTransaction "${transactionId}" on queue "${queueLabel}"`);
+        _logDebug(`ClusterBus::sendTransaction '${transactionId}' on channel '${channelLabel}' with data ${JSON.stringify(data)}`);
+        //_logInfo(`ClusterBus::sendTransaction "${transactionId}" on channel "${channelLabel}"`);
         setImmediate(() => process.send && process.send({
-            queueLabel,
+            channelLabel,
             transactionId,
             data
         }));
@@ -94,7 +94,7 @@ else {
         };
         if (_requestTimeout > 0) {
             transactionWrapper.timer = setTimeout(() => {
-                _logWarning(`ClusterBus::sendTransaction '${transactionId}' on queue '${queueLabel}' timedout after ${_requestTimeout}[ms]!`);
+                _logWarning(`ClusterBus::sendTransaction '${transactionId}' on channel '${channelLabel}' timedout after ${_requestTimeout}[ms]!`);
                 delete transactionSet[transactionId];
             }, _requestTimeout);
         }

@@ -7,6 +7,6 @@ export declare function config(options: {
     logWarning?: (...args: any[]) => void;
     logError?: (...args: any[]) => void;
 }): void;
-export declare let subscribeReqResChannel: <T>(queueLabel: string, executor: tRequestHandler<T>, context?: any) => void;
-export declare let requestMaster: <T>(queueLabel: string, data: any, cback?: tResponseResolver<T>) => void | Promise<T>;
+export declare let subscribeReqResChannel: <T>(channelLabel: string, executor: tRequestHandler<T>, context?: any) => void;
+export declare let requestMaster: <T>(channelLabel: string, data: any, cback?: tResponseResolver<T>) => void | Promise<T>;
 export {};

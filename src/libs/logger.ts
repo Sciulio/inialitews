@@ -6,7 +6,7 @@ import winston from 'winston';
 const winstonDailyRotateFile = require('winston-daily-rotate-file');
 
 import { loadConfiguration } from './config';
-import { workerId, isProduction, processKey } from './clustering';
+import { workerId, isProduction, processKey } from './workers';
 
 
 const config = loadConfiguration();
@@ -48,7 +48,7 @@ const accessTransport = new winstonDailyRotateFile({
 export const logger = winston.createLogger({
   exitOnError: false,
   level: 'info',
-  format: winston.format.json(),
+  format: winston.format.simple(), //json(),
   transports: [
     errorTransport,
     combinedTransport

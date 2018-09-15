@@ -8,9 +8,9 @@ const path_1 = __importDefault(require("path"));
 const winston_1 = __importDefault(require("winston"));
 const winstonDailyRotateFile = require('winston-daily-rotate-file');
 const config_1 = require("./config");
-const clustering_1 = require("./clustering");
+const workers_1 = require("./workers");
 const config = config_1.loadConfiguration();
-const _processKey = clustering_1.processKey();
+const _processKey = workers_1.processKey();
 const logDirectory = path_1.default.join(process.cwd(), config.stats.logs.path);
 fs_1.default.existsSync(logDirectory) || fs_1.default.mkdirSync(logDirectory); //TODO use mkdir???
 // - Write all logs error (and below) to `error.log`.
@@ -41,7 +41,7 @@ const accessTransport = new winstonDailyRotateFile({
 exports.logger = winston_1.default.createLogger({
     exitOnError: false,
     level: 'info',
-    format: winston_1.default.format.json(),
+    format: winston_1.default.format.simple(),
     transports: [
         errorTransport,
         combinedTransport
@@ -98,7 +98,7 @@ if (isMasterProcess()) {
 // If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
 // 
-if (!clustering_1.isProduction()) {
+if (!workers_1.isProduction()) {
     exports.logger.add(new winston_1.default.transports.Console({
         //format: winston.format.simple()
         format: winston_1.default.format.printf(info => `(${_processKey}) ${info.message}`),

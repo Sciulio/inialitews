@@ -15,12 +15,12 @@ export default {
   init: async function(parentApp: Koa) {
     logger.info(` -  - INIT: App[${"/_api"}]`);
 
-    await loadExporters<tConfigExporter>("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
+    await loadExporters<tConfigExporter>("./mwares/*.js", " -  - LOAD: AppConfigurations", __dirname)
     .mapAsync(async configExport => {
       await configExport.init(app);
     });
 
-    await loadExporters<tApiExport>("./services/*/index.js", __dirname, " -  - LOAD: Routes")
+    await loadExporters<tApiExport>("./services/*/index.js", " -  - LOAD: Routes", __dirname)
     .forEachAsync(async routeExport => {
       //TODO: preroute
       routeExport.router.use(async function(ctx, next) {

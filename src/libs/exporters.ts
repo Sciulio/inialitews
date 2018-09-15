@@ -31,12 +31,26 @@ const dynamoloCommonConfig = {
   logError: (...args: any[]) => logger.error(args.join("\t"))
 };
 
-export function loadExporters<T>(_path: string, root: string, infoMessage: string): T[] {
+let appRoot: string = "";
+
+export function config(_appRoot: string) {
+  appRoot = _appRoot;
+}
+
+export function loadExporters<T>(_path: string, infoMessage: string): T[];
+export function loadExporters<T>(_path: string, infoMessage: string, rootPath: string): T[];
+export function loadExporters<T>(...args: string[]): T[] {
+  const _path = args[0];
+  const infoMessage = args[1];
+  const rootPath = args.length == 3 ? args[2] : appRoot;
+
   logger.info(infoMessage);
 
   //TODO: check order collisions
   //TODO: exceptions handling? stop app?
   
-  return load<T>(path.join(root, _path), dynamoloCommonConfig)
+  const absPath = path.join(rootPath, _path);
+  
+  return load<T>(absPath, dynamoloCommonConfig)
   .sort((a, b) => a.order > b.order ? 1 : -1);
 };

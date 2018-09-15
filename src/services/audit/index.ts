@@ -6,11 +6,8 @@ import 'async-extensions';
 
 import { loadConfiguration } from '../../libs/config';
 import { tServiceExporter } from '../../libs/exporters';
-import { docFileAudit, tFileAudit, tBuildAudit } from './types';
 import { logger } from '../../libs/logger';
-import { factory } from '../../routes/api/services/sendmail/model';
-import { isMasterProcess } from '../../libs/clustering';
-import cluster from 'cluster';
+import { isMasterProcess } from '../../libs/workers';
 import { subscribeReqResChannel, requestMaster } from '../../libs/clusterbus';
 
 const config = loadConfiguration();
@@ -170,11 +167,11 @@ type tQueueArgs = {
   tenantName: string;
   url: string;
 };
-const queueLabel = "audit_fetchdata";
+const channelLabel = "audit_fetchdata";
 export let fetchFileAudit: <T>(tenantName: string, url: string) => Promise<T>;
 
 if (isMasterProcess()) {
-  subscribeReqResChannel<tQueueArgs>(queueLabel, async data => await fetchFileAudit(data.tenantName, data.url));
+  subscribeReqResChannel<tQueueArgs>(channelLabel, async data => await fetchFileAudit(data.tenantName, data.url));
 
   fetchFileAudit = function<T>(tenantName: string, url: string): Promise<T> {
     /*if (!(tenantName in dbs)) {
@@ -194,7 +191,7 @@ if (isMasterProcess()) {
   }
 } else {
   fetchFileAudit = async function<T>(tenantName: string, url: string): Promise<T> {
-    return await (requestMaster<T>(queueLabel, {
+    return await (requestMaster<T>(channelLabel, {
       tenantName,
       url
     } as tQueueArgs) as Promise<T>);

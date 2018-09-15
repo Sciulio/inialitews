@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../src/services/sendmail/index.ts"],"names":[],"mappings":";;;;;;;;;;AAAA,uCAAmC;AAKnC,MAAM,MAAM,GAAG,UAAU,CAAC;AAE1B,kBAAe;IACb,KAAK,EAAE,IAAI;IACX,IAAI,EAAE,GAAS,EAAE;QACf,MAAM,gBAAM,CAAC,MAAM,CAAC,CAAC;IACvB,CAAC,CAAA;IACD,OAAO,EAAE,GAAS,EAAE,gDAAE,CAAC,CAAA;CACV,CAAC"}

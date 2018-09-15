@@ -23,11 +23,11 @@ exports.default = {
     init: function (parentApp) {
         return __awaiter(this, void 0, void 0, function* () {
             logger_1.logger.info(` -  - INIT: App[${"/_api"}]`);
-            yield exporters_1.loadExporters("./config/*.js", __dirname, " -  - LOAD: AppConfigurations")
+            yield exporters_1.loadExporters("./mwares/*.js", " -  - LOAD: AppConfigurations", __dirname)
                 .mapAsync((configExport) => __awaiter(this, void 0, void 0, function* () {
                 yield configExport.init(app);
             }));
-            yield exporters_1.loadExporters("./services/*/index.js", __dirname, " -  - LOAD: Routes")
+            yield exporters_1.loadExporters("./services/*/index.js", " -  - LOAD: Routes", __dirname)
                 .forEachAsync((routeExport) => __awaiter(this, void 0, void 0, function* () {
                 //TODO: preroute
                 routeExport.router.use(function (ctx, next) {

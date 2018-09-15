@@ -13,11 +13,20 @@ const dynamoloCommonConfig = {
     logInfo: (...args) => logger_1.logger.info(args.join("\t")),
     logError: (...args) => logger_1.logger.error(args.join("\t"))
 };
-function loadExporters(_path, root, infoMessage) {
+let appRoot = "";
+function config(_appRoot) {
+    appRoot = _appRoot;
+}
+exports.config = config;
+function loadExporters(...args) {
+    const _path = args[0];
+    const infoMessage = args[1];
+    const rootPath = args.length == 3 ? args[2] : appRoot;
     logger_1.logger.info(infoMessage);
     //TODO: check order collisions
     //TODO: exceptions handling? stop app?
-    return dynamolo_1.load(path_1.default.join(root, _path), dynamoloCommonConfig)
+    const absPath = path_1.default.join(rootPath, _path);
+    return dynamolo_1.load(absPath, dynamoloCommonConfig)
         .sort((a, b) => a.order > b.order ? 1 : -1);
 }
 exports.loadExporters = loadExporters;

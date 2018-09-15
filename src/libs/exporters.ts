@@ -37,9 +37,9 @@ export function config(_appRoot: string) {
   appRoot = _appRoot;
 }
 
-export function loadExporters<T>(_path: string, infoMessage: string): T[];
-export function loadExporters<T>(_path: string, infoMessage: string, rootPath: string): T[];
-export function loadExporters<T>(...args: string[]): T[] {
+export function loadExporters<T extends tConfigExporter>(_path: string, infoMessage: string): T[];
+export function loadExporters<T extends tConfigExporter>(_path: string, infoMessage: string, rootPath: string): T[];
+export function loadExporters<T extends tConfigExporter>(...args: string[]): T[] {
   const _path = args[0];
   const infoMessage = args[1];
   const rootPath = args.length == 3 ? args[2] : appRoot;

@@ -12,5 +12,5 @@ export declare type tAppRouteExporter = tConfigExporter & {
     route: string;
 };
 export declare function config(_appRoot: string): void;
-export declare function loadExporters<T>(_path: string, infoMessage: string): T[];
-export declare function loadExporters<T>(_path: string, infoMessage: string, rootPath: string): T[];
+export declare function loadExporters<T extends tConfigExporter>(_path: string, infoMessage: string): T[];
+export declare function loadExporters<T extends tConfigExporter>(_path: string, infoMessage: string, rootPath: string): T[];

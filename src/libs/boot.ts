@@ -75,7 +75,7 @@ class MasterLifecycleEmitter extends AppLifecycleEmitter {
     .on("beforeExit", onExit)
     .on("SIGINT", onExit)
     .on("SIGTERM", onExit)
-    .on("SIGKILL", onExit)
+    //.on("SIGKILL", onExit) throws on newer nodejs versions
     //.on("SIGHUP", onRestart)
     //.on("SIGUSR2", onRestart)
     ;

@@ -68,8 +68,7 @@ class MasterLifecycleEmitter extends AppLifecycleEmitter {
                 //.on('unhandledRejection', (err) => { ... })
                 .on("beforeExit", onExit)
                 .on("SIGINT", onExit)
-                .on("SIGTERM", onExit)
-                .on("SIGKILL", onExit);
+                .on("SIGTERM", onExit);
         });
     }
 }

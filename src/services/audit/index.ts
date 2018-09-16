@@ -7,7 +7,7 @@ import 'async-extensions';
 import { loadConfiguration } from '../../libs/config';
 import { tServiceExporter } from '../../libs/exporters';
 import { logger } from '../../libs/logger';
-import { isMasterProcess } from '../../libs/workers';
+import { isMasterProcess } from '../../libs/env';
 import { subscribeReqResChannel, requestMaster } from '../../libs/clusterbus';
 
 const config = loadConfiguration();

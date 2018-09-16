@@ -1,7 +1,7 @@
 
 import Koa from 'koa';
 
-import { tConfigExporter } from '../libs/exporters';
+import { tAppExporter } from '../libs/exporters';
 import { MultiTenantContext, MultiTenantApiContext } from '../libs/multitenant';
 import { accessLogger } from '../libs/logger';
 
@@ -11,7 +11,7 @@ export default {
   init: async function (app: any) {
     app.use(mware);
   }
-} as tConfigExporter;
+} as tAppExporter;
 
 async function mware(ctx: Koa.Context, next: () => Promise<any>) {
   const requestOn = Date.now();

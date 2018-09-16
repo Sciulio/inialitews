@@ -40,4 +40,4 @@ function isProduction() {
     return process.env.NODE_ENV == 'production';
 }
 exports.isProduction = isProduction;
-//# sourceMappingURL=workers.js.map
+//# sourceMappingURL=env.js.map

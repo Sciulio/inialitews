@@ -1,6 +1,6 @@
 import Router from 'koa-router';
-import { tConfigExporter } from '../../../libs/exporters';
-export declare type tApiExport = tConfigExporter & {
+import { tAppExporter } from '../../../libs/exporters';
+export declare type tApiExport = tAppExporter & {
     name: string;
     router: Router;
     route: string;

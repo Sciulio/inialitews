@@ -8,14 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const workers_1 = require("../libs/workers");
+const env_1 = require("../libs/env");
 exports.default = {
     order: 10,
     init: function (app) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!workers_1.isProduction()) {
+            if (!env_1.isProduction()) {
                 app.use((ctx, next) => __awaiter(this, void 0, void 0, function* () {
-                    ctx.set("TEST-X-Worker", workers_1.processKey());
+                    ctx.set("TEST-X-Worker", env_1.processKey());
                     yield next();
                 }));
             }

@@ -1,7 +1,7 @@
 import Koa from "koa";
 import Mount from 'koa-mount';
 
-import { tConfigExporter, loadExporters, tAppRouteExporter } from "../libs/exporters";
+import { tAppExporter, loadExporters, tAppRouteExporter } from "../libs/exporters";
 
 
 export default {
@@ -14,4 +14,4 @@ export default {
       await appExport.init(app);
     });
   }
-} as tConfigExporter;
+} as tAppExporter;

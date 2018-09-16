@@ -6,7 +6,7 @@ import winston from 'winston';
 const winstonDailyRotateFile = require('winston-daily-rotate-file');
 
 import { loadConfiguration } from './config';
-import { workerId, isProduction, processKey } from './workers';
+import { workerId, isProduction, processKey } from './env';
 
 
 const config = loadConfiguration();

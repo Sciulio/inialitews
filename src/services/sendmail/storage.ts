@@ -2,7 +2,7 @@ import path from 'path';
 
 import { logger } from '../../libs/logger';
 import { loadConfiguration } from '../../libs/config';
-import { isMasterProcess } from '../../libs/workers';
+import { isMasterProcess } from '../../libs/env';
 import { requestMaster, subscribeReqResChannel } from '../../libs/clusterbus';
 
 import Datastore from 'nedb';

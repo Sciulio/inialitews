@@ -17,7 +17,7 @@ const readline_1 = __importDefault(require("readline"));
 require("async-extensions");
 const config_1 = require("../../libs/config");
 const logger_1 = require("../../libs/logger");
-const workers_1 = require("../../libs/workers");
+const env_1 = require("../../libs/env");
 const clusterbus_1 = require("../../libs/clusterbus");
 const config = config_1.loadConfiguration();
 const rgxpStringValueEnd = /\s*(?<!\\)"(.*?)(?<!\\)"\s*[,\}]/;
@@ -130,7 +130,7 @@ function loadTenantAudit(tenantName) {
     });
 }
 const channelLabel = "audit_fetchdata";
-if (workers_1.isMasterProcess()) {
+if (env_1.isMasterProcess()) {
     clusterbus_1.subscribeReqResChannel(channelLabel, (data) => __awaiter(this, void 0, void 0, function* () { return yield exports.fetchFileAudit(data.tenantName, data.url); }));
     exports.fetchFileAudit = function (tenantName, url) {
         /*if (!(tenantName in dbs)) {
@@ -162,7 +162,7 @@ exports.default = {
     order: 100,
     init: function () {
         return __awaiter(this, void 0, void 0, function* () {
-            if (workers_1.isMasterProcess()) {
+            if (env_1.isMasterProcess()) {
                 yield Object.keys(config.tenants)
                     .forEachAsync((tenantKey) => __awaiter(this, void 0, void 0, function* () {
                     const tenant = config.tenants[tenantKey];
@@ -176,7 +176,7 @@ exports.default = {
     },
     dispose: function () {
         return __awaiter(this, void 0, void 0, function* () {
-            if (workers_1.isMasterProcess()) {
+            if (env_1.isMasterProcess()) {
                 Object.keys(dbs)
                     .forEach(dbKey => {
                     const db = dbs[dbKey];

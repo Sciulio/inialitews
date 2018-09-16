@@ -1,7 +1,7 @@
 import Koa from 'koa';
 
 import { multitenantStrategy, MultiTenantContext } from "../libs/multitenant";
-import { tConfigExporter } from '../libs/exporters';
+import { tAppExporter } from '../libs/exporters';
 
 
 export default {
@@ -9,7 +9,7 @@ export default {
   init: async function (app: Koa) {
     app.use(multitenantMiddleware);
   }
-} as tConfigExporter;
+} as tAppExporter;
 
 async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>) {
   const tenant = multitenantStrategy(ctx);

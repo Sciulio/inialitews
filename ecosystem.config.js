@@ -10,11 +10,11 @@ module.exports = {
       NODE_ENV: "development",
     },
     env_staging : {
-      PORT: 80,
+      PORT: 8080,
       NODE_ENV: "staging"
     },
     env_production: {
-      PORT: 8080,
+      PORT: 80,
       NODE_ENV: "production",
     }
   }]

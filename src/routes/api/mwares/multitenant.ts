@@ -2,7 +2,7 @@ import Koa from 'koa';
 
 import shortid from 'shortid';
 
-import { tConfigExporter } from "../../../libs/exporters";
+import { tAppExporter } from "../../../libs/exporters";
 import { MultiTenantApiContext } from '../../../libs/multitenant';
 
 
@@ -11,7 +11,7 @@ export default {
   init: async function(app: Koa) {
     app.use(multitenantMiddleware);
   }
-} as tConfigExporter;
+} as tAppExporter;
 
 async function multitenantMiddleware(ctx: Koa.Context, next: () => Promise<any>) {
   const requestId = (ctx.res as any).requestId = shortid();

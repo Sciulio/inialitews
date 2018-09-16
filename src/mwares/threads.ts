@@ -1,7 +1,7 @@
 import Koa from 'koa';
 
-import { tConfigExporter } from '../libs/exporters';
-import { isProduction, processKey } from '../libs/workers';
+import { tAppExporter } from '../libs/exporters';
+import { isProduction, processKey } from '../libs/env';
 
 
 export default {
@@ -15,4 +15,4 @@ export default {
       });
     }
   }
-} as tConfigExporter;
+} as tAppExporter;

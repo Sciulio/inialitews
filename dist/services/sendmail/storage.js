@@ -14,14 +14,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const logger_1 = require("../../libs/logger");
 const config_1 = require("../../libs/config");
-const workers_1 = require("../../libs/workers");
+const env_1 = require("../../libs/env");
 const clusterbus_1 = require("../../libs/clusterbus");
 const nedb_1 = __importDefault(require("nedb"));
 const config = config_1.loadConfiguration();
 const channelLabel = "api_services_sendmail";
 let _initDb;
 let _insert;
-if (workers_1.isMasterProcess()) {
+if (env_1.isMasterProcess()) {
     let db;
     _initDb = function (apiKey) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -6,18 +6,21 @@ import Koa from 'koa';
 import { logger } from './logger';
 
 
-export type tConfigExporter = {
-  order: number;
-  
-  init: (app: Koa) => Promise<void>;
-  dispose: () => Promise<void>;
-};
-
-export type tServiceExporter = tConfigExporter & {
+export type tBootstrappingModule = {
   init: () => Promise<void>;
 };
+export type tServiceExporter = tBootstrappingModule & {
+  order: number;
 
-export type tAppRouteExporter = tConfigExporter & {
+  init: () => Promise<void>;
+  dispose: () => Promise<void>;
+};
+export type tAppExporter = tServiceExporter & {
+  init: (app: Koa) => Promise<void>;
+};
+
+
+export type tAppRouteExporter = tAppExporter & {
   app: Koa;
   route: string;
 };
@@ -37,20 +40,46 @@ export function config(_appRoot: string) {
   appRoot = _appRoot;
 }
 
-export function loadExporters<T extends tConfigExporter>(_path: string, infoMessage: string): T[];
-export function loadExporters<T extends tConfigExporter>(_path: string, infoMessage: string, rootPath: string): T[];
-export function loadExporters<T extends tConfigExporter>(...args: string[]): T[] {
+export function loadExporter<T extends tBootstrappingModule>(_path: string, infoMessage: string): T;
+export function loadExporter<T extends tBootstrappingModule>(_path: string, infoMessage: string, rootPath: string): T;
+export function loadExporter<T extends tBootstrappingModule>(...args: string[]): T {
   const _path = args[0];
   const infoMessage = args[1];
   const rootPath = args.length == 3 ? args[2] : appRoot;
+
+  const absPath = path.join(rootPath, _path);
 
   logger.info(infoMessage);
 
   //TODO: check order collisions
   //TODO: exceptions handling? stop app?
   
+  return load<T>(absPath, dynamoloCommonConfig)[0];
+};
+
+export function loadExporters<T extends tServiceExporter>(_path: string, infoMessage: string): T[];
+export function loadExporters<T extends tServiceExporter>(_path: string, infoMessage: string, rootPath: string): T[];
+export function loadExporters<T extends tServiceExporter>(...args: string[]): T[] {
+  const _path = args[0];
+  const infoMessage = args[1];
+  const rootPath = args.length == 3 ? args[2] : appRoot;
+
   const absPath = path.join(rootPath, _path);
+
+  logger.info(infoMessage);
+
+  //TODO: check order collisions
+  //TODO: exceptions handling? stop app?
   
   return load<T>(absPath, dynamoloCommonConfig)
   .sort((a, b) => a.order > b.order ? 1 : -1);
 };
+
+export async function disposeExporters(list: tServiceExporter[], infoMessage: string) {
+  logger.info(infoMessage);
+
+  await list
+  .forEachAsync(async moduleExport => {
+    await moduleExport.dispose();
+  });
+}

@@ -8,7 +8,7 @@ import { MultiTenantContext, MultiTenantResxContext, multitenantPath } from "../
 import { fetchFileAudit } from '../../services/audit';
 import { error404 } from "./libs/errors";
 
-import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
+import { tAppRouteExporter, loadExporters, tAppExporter } from '../../libs/exporters';
 import { getResxPath } from './libs/files';
 import { logger } from '../../libs/logger';
 import { tFileAudit } from '../../services/audit/types';
@@ -30,7 +30,7 @@ export default {
     .use(router.routes())
     .use(router.allowedMethods());
     
-    await loadExporters<tConfigExporter>("./mwares/*.js", " -  - LOAD: App Configurations", __dirname)
+    await loadExporters<tAppExporter>("./mwares/*.js", " -  - LOAD: App Configurations", __dirname)
     .mapAsync(async configExport => {
       await configExport.init(app);
     });

@@ -1,5 +1,5 @@
 import cluster from "cluster";
-import { isMasterProcess } from "./workers";
+import { isMasterProcess } from "./env";
 
 
 type tRequestArgs = {

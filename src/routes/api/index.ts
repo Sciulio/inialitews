@@ -1,7 +1,7 @@
 import Koa from 'koa';
 
 import { tApiExport } from './libs/exporters';
-import { tAppRouteExporter, loadExporters, tConfigExporter } from '../../libs/exporters';
+import { tAppRouteExporter, loadExporters, tAppExporter } from '../../libs/exporters';
 import { MultiTenantApiContext, getApiConfig } from '../../libs/multitenant';
 import { logger } from '../../libs/logger';
 
@@ -15,7 +15,7 @@ export default {
   init: async function(parentApp: Koa) {
     logger.info(` -  - INIT: App[${"/_api"}]`);
 
-    await loadExporters<tConfigExporter>("./mwares/*.js", " -  - LOAD: AppConfigurations", __dirname)
+    await loadExporters<tAppExporter>("./mwares/*.js", " -  - LOAD: AppConfigurations", __dirname)
     .mapAsync(async configExport => {
       await configExport.init(app);
     });

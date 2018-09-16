@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cluster_1 = __importDefault(require("cluster"));
-const workers_1 = require("./workers");
+const env_1 = require("./env");
 let _requestTimeout = 0;
 let _logDebug = console.debug;
 let _logInfo = console.log;
@@ -33,7 +33,7 @@ exports.config = config;
 const _ERROR_channelNotFound = 400;
 const _ERROR_channelExecutorThrown = 500;
 const _ERROR_channelTimeout = 600;
-if (workers_1.isMasterProcess()) {
+if (env_1.isMasterProcess()) {
     const registeredChannels = {};
     cluster_1.default.addListener("message", (worker, message, handle) => __awaiter(this, void 0, void 0, function* () {
         _logDebug(`ClusterBus::message from worker ${worker.id} with message ${JSON.stringify(message)}`);

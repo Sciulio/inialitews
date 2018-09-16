@@ -1,7 +1,7 @@
 import Koa from "koa";
 
 import compress from 'koa-compress';
-import { tConfigExporter } from "../libs/exporters";
+import { tAppExporter } from "../libs/exporters";
 
 
 export default {
@@ -16,4 +16,4 @@ export default {
       flush: require('zlib').Z_SYNC_FLUSH
     }))
   }
-} as tConfigExporter;
+} as tAppExporter;

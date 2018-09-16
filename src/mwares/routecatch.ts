@@ -1,6 +1,6 @@
 import Koa from "koa";
 
-import { tConfigExporter } from "../libs/exporters";
+import { tAppExporter } from "../libs/exporters";
 
 
 export default {
@@ -9,7 +9,7 @@ export default {
     app
     .use(mware);
   }
-} as tConfigExporter;
+} as tAppExporter;
 
 async function mware(ctx: Koa.Context, next: () => void) {
   try {
